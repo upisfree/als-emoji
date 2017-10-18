@@ -1,0 +1,14 @@
+body {
+  margin: 10;
+  padding: 0;
+}
+
+textarea {
+  width: 400px;
+  height: 200px;
+  margin-bottom: 20px;
+}
+
+p {
+  width: 400px;
+}

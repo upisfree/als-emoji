@@ -1,0 +1,25 @@
+{
+  "name": "als-emoji",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.html",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/upisfree/als-emoji.git"
+  },
+  "author": "upisfree",
+  "bugs": {
+    "url": "https://github.com/upisfree/als-emoji/issues"
+  },
+  "homepage": "https://github.com/upisfree/als-emoji#readme",
+  "dependencies": {
+    "browserify": "^14.4.0",
+    "gulp": "^3.9.1",
+    "gulp-uglify": "^3.0.0",
+    "vinyl-buffer": "^1.0.0",
+    "vinyl-source-stream": "^1.1.0"
+  }
+}
