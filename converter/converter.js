@@ -1,12 +1,22 @@
 var fs = require('fs'),
+    path = require('path'),
     XmlStream = require('xml-stream'),
     JSONStream = require('JSONStream'),
-    file = process.argv[2],
+    xmlPath = path.resolve(process.argv[2]),
+    jsonPath = process.argv[3],
     language,
     output = {};
 
-var readStream = fs.createReadStream(file),
-    writeStream = fs.createWriteStream('out.json'),
+// second argument
+if (jsonPath) {
+  jsonPath = path.resolve(jsonPath);
+  output = require(jsonPath);
+} else {
+  jsonPath = 'emojies.json';
+}
+
+var readStream = fs.createReadStream(xmlPath),
+    writeStream = fs.createWriteStream(jsonPath),
     jsonStream = JSONStream.stringifyObject('{', ',', '}'),
     xml = new XmlStream(readStream);
 
@@ -29,10 +39,8 @@ xml.on('endElement: annotation', function(item) {
 
   if (item['$'].type) {
     output[symbol][language].name = item['$text'];
-    // output[symbol].name = item['$text'];
   } else {
     output[symbol][language].keywords = item['$text'].replace(/\s\|/g, '');
-    // output[symbol].keywords = item['$text'];
   }
 
   if (output[symbol][language].name && output[symbol][language].keywords) {
