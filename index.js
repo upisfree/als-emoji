@@ -2473,7 +2473,7 @@
   return Tokens;
 }));
 
-}).call(this,"/node_modules/az/dist")
+}).call(this,"/node_modules\\az\\dist")
 },{"fs":2}],2:[function(require,module,exports){
 
 },{}],3:[function(require,module,exports){
@@ -2498,41 +2498,55 @@ module.exports = Az
 },{"az":1}],4:[function(require,module,exports){
 // поддержка пока что только русского и английского из-за начальной формы
 var Az = require('./az'),
-    specialSymbols = /(\s+|@|&|'|\(|\)|<|>|#)/g;
+    specialSymbols = /(@|&|'|\(|\)|<|>|#)/g;
 
 window.update = function() {
-  var tokens = Az.Tokens(input.value).done();
+  var val = input.value.replace(specialSymbols, '').toLowerCase(),
+      tokens = Az.Tokens(val).done(),
+      word,
+      lang;
 
-  for (let i = 0; i < tokens.length; i++) {
-    if (tokens[i].type === Az.Tokens.WORD && tokens[i].subType === Az.Tokens.CYRIL) {
-      let word = Az.Morph(tokens[i].toString().replace(specialSymbols, ''), {
-        ignoreCase: true,
-        stutter: false
-      })[0].normalize().word;
+  // параллелить через workers
+  for (let a = 0; a < tokens.length; a++) {
+    if (tokens[a].type === Az.Tokens.WORD) {
+      switch (tokens[a].subType) {
+        case Az.Tokens.CYRIL:
+          word = Az.Morph(tokens[a].toString())[0];
+          lang = 'ru';
 
-      let xpathResult = document.evaluate("//annotation[text() = '" + word + "']", window.emojiData, null, XPathResult.ANY_TYPE, null);
-      let node = xpathResult.iterateNext()
-      // let xpathResult = document.evaluate("//annotation[starts-with(text(), '" + text[i] + "')]", window.emojiData, null, XPathResult.UNORDERED_NODE_ITERATOR_TYPE, null);
-      // var xpathResult = document.evaluate("//annotation[contains(text(), '" + text[i] + "')]", window.emojiData, null, XPathResult.UNORDERED_NODE_ITERATOR_TYPE, null);
+          // приводим в начальную форму только существительные, глаголы и прилагательные
+          if (word.tag.POS == 'NOUN' ||
+              // word.tag.POS == 'ADVB' || // наречие
+              word.tag.POS == 'INFN' ||
+              word.tag.POS == 'ADJF') {
+            word = word.normalize().word; // в русском только здесь эмоджи подставляем
+          }
 
-      if (node) {
-        tokens[i] = node.getAttribute('cp');
+          break;
+        case Az.Tokens.LATIN:
+          word = tokens[a].toString();
+          lang = 'en';
+
+          break;
       }
+        
+      if (typeof word == 'string') { // отсекаем не существительные, глаголы или прилагательные
+        for (let b in emojiData) {
+          if (emojiData[b][lang]) {
+            let keywords = emojiData[b][lang].keywords.split(' ');
 
-      // try {
-      //   var node = xpathResult.iterateNext();
+            if (emojiData[b][lang].name == word ||
+                keywords[0] == word ||
+                keywords[1] == word ||
+                keywords[2] == word ||
+                keywords[3] == word) { // бывает по десять кейвордов, переделать
+              tokens[a] += b;
 
-      //   // if (node)
-      //   //   word = '';
-
-      //   while (node) {
-      //     word += node.getAttribute('cp') + ' ';
-      //     node = xpathResult.iterateNext();
-      //   } 
-      // }
-      // catch (e) {
-      //   console.log('Error: Document tree modified during iteration ' + e);
-      // }
+              break;
+            }
+          }
+        }
+      }
     }
   }
 
@@ -2544,13 +2558,12 @@ var output = document.getElementById('output');
 
 var xhr = new XMLHttpRequest();
 
-xhr.open('GET', 'ru.xml', true);
-xhr.responseType = 'document';
+xhr.open('GET', 'converter/emojies.json', true);
 xhr.onreadystatechange = function() {
   if (xhr.readyState != 4)
     return;
 
-  window.emojiData = xhr.responseXML;
+  window.emojiData = JSON.parse(xhr.responseText);
 };
 
 // init
