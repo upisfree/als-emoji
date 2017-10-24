@@ -21,6 +21,7 @@
     "gulp": "^3.9.1",
     "gulp-uglify": "^3.0.0",
     "natural": "^0.5.4",
+    "stemmer": "^1.0.1",
     "vinyl-buffer": "^1.0.0",
     "vinyl-source-stream": "^1.1.0"
   }
