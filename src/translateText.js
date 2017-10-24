@@ -1,0 +1,40 @@
+var Az = require('./az'),
+    LANG = require('./lang'),
+    prepareText = require('./prepareText'),
+    tokenization = require('./tokenization'),
+    normalizeWord = require('./normalizeWord'),
+    wordToEmoji = require('./wordToEmoji');
+
+module.exports = function(text) {
+  var text = prepareText(text),
+      tokens = tokenization(text),
+      word,
+      lang;
+
+  for (let a = 0; a < tokens.length; a++) {
+    if (tokens[a].type === Az.Tokens.WORD) {
+      switch (tokens[a].subType) {
+        case Az.Tokens.CYRIL:
+          lang = LANG.RU;
+
+          break;
+        case Az.Tokens.LATIN:
+          lang = LANG.EN;
+
+          break;
+      }
+
+      word = normalizeWord(tokens[a].toString(), lang);
+
+      if (word) { // отсекаем не существительные, глаголы или прилагательные
+        let emoji = wordToEmoji(word, lang, emojiData);
+
+        if (emoji) {
+          tokens[a] += ' ' + emoji;
+        }
+      }
+    }
+  }
+
+  return tokens.join(' ');
+}

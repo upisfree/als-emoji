@@ -2498,75 +2498,19 @@ module.exports = Az
 },{"az":1}],4:[function(require,module,exports){
 // поддержка пока что только русского и английского из-за начальной формы
 var Az = require('./az'),
-    specialSymbols = /(@|&|'|\(|\)|<|>|#)/g;
+    translateText = require('./translateText');
 
-window.update = function() {
-  var val = input.value.replace(specialSymbols, '').toLowerCase(),
-      tokens = Az.Tokens(val).done(),
-      word,
-      lang;
-
-  // параллелить через workers,
-  // английский язык,
-  // код отрефакторить и в разные файлы,
-  // массив со всеми названиями и ключевыми словами, с которым сначала идёт проверка, мол, стоит ли уже дальше проверять все эмоджи или нет
-  for (let a = 0; a < tokens.length; a++) {
-    if (tokens[a].type === Az.Tokens.WORD) {
-      switch (tokens[a].subType) {
-        case Az.Tokens.CYRIL:
-          word = Az.Morph(tokens[a].toString())[0];
-          lang = 'ru';
-
-          // приводим в начальную форму только существительные, глаголы и прилагательные
-          if (word.tag.POS == 'NOUN' ||
-              // word.tag.POS == 'ADVB' || // наречие
-              word.tag.POS == 'INFN' ||
-              word.tag.POS == 'ADJF') {
-            word = word.normalize().word; // в русском только здесь эмоджи подставляем
-          }
-
-          break;
-        case Az.Tokens.LATIN:
-          word = tokens[a].toString();
-          lang = 'en';
-
-          break;
-      }
-
-      if (typeof word == 'string') { // отсекаем не существительные, глаголы или прилагательные
-        let variants = [];
-
-        for (let b in emojiData) {
-          if (emojiData[b][lang]) {
-            let name = emojiData[b][lang].name;
-            let keywords = emojiData[b][lang].keywords;
-
-            if (name == word) {
-              variants.push(b);
-
-              break; // самый лучший вариант
-            }
-
-            for (let c in keywords) {
-              if (keywords[c] == word) {
-                variants.push(b);
-              }
-            }
-          }
-        }
-
-        if (variants.length) {
-          tokens[a] += ' ' + variants[Math.floor(Math.random() * variants.length)];
-        }
-      }
-    }
-  }
-
-  output.textContent = tokens.join(' ');
-}
+// параллелить через workers,
+// английский язык,
+// массив со всеми названиями и ключевыми словами, с которым сначала идёт проверка, мол, стоит ли уже дальше проверять все эмоджи или нет
+// fallback: https://github.com/lautis/emojie
 
 var input = document.getElementById('input');
 var output = document.getElementById('output');
+
+document.getElementsByTagName('button')[0].onclick = function() {
+  output.textContent = translateText(input.value);
+}
 
 var xhr = new XMLHttpRequest();
 
@@ -2582,4 +2526,117 @@ xhr.onreadystatechange = function() {
 Az.Morph.init('node_modules/az/dicts', function() {
   xhr.send();
 });
-},{"./az":3}]},{},[4]);
+},{"./az":3,"./translateText":9}],5:[function(require,module,exports){
+const LANG = {
+  RU: 'ru',
+  EN: 'en'
+}
+
+module.exports = LANG;
+},{}],6:[function(require,module,exports){
+var Az = require('./az')
+    LANG = require('./lang');
+
+module.exports = function(word, lang) {
+  switch (lang) {
+    case LANG.RU:
+      word = Az.Morph(word)[0];
+
+      // приводим в начальную форму только существительные, глаголы и прилагательные
+      if (word.tag.POS === 'NOUN' ||
+          // word.tag.POS === 'ADVB' || // наречие
+          word.tag.POS === 'INFN' ||
+          word.tag.POS === 'ADJF') {
+        word = word.normalize().word; // в русском только здесь эмоджи подставляем
+      } else {
+        word = null;
+      }
+
+      break;
+    case LANG.EN:
+      word = word;
+
+      break;
+  }
+
+  return word;
+}
+},{"./az":3,"./lang":5}],7:[function(require,module,exports){
+module.exports = function(text) {
+  var specialSymbols = /(@|&|'|\(|\)|<|>|#)/g;
+
+  return text.replace(specialSymbols, '').toLowerCase();
+}
+},{}],8:[function(require,module,exports){
+var Az = require('./az');
+
+module.exports = function(text) {
+  return Az.Tokens(text).done();
+}
+},{"./az":3}],9:[function(require,module,exports){
+var Az = require('./az'),
+    LANG = require('./lang'),
+    prepareText = require('./prepareText'),
+    tokenization = require('./tokenization'),
+    normalizeWord = require('./normalizeWord'),
+    wordToEmoji = require('./wordToEmoji');
+
+module.exports = function(text) {
+  var text = prepareText(text),
+      tokens = tokenization(text),
+      word,
+      lang;
+
+  for (let a = 0; a < tokens.length; a++) {
+    if (tokens[a].type === Az.Tokens.WORD) {
+      switch (tokens[a].subType) {
+        case Az.Tokens.CYRIL:
+          lang = LANG.RU;
+
+          break;
+        case Az.Tokens.LATIN:
+          lang = LANG.EN;
+
+          break;
+      }
+
+      word = normalizeWord(tokens[a].toString(), lang);
+
+      if (word) { // отсекаем не существительные, глаголы или прилагательные
+        let emoji = wordToEmoji(word, lang, emojiData);
+
+        if (emoji) {
+          tokens[a] += ' ' + emoji;
+        }
+      }
+    }
+  }
+
+  return tokens.join(' ');
+}
+},{"./az":3,"./lang":5,"./normalizeWord":6,"./prepareText":7,"./tokenization":8,"./wordToEmoji":10}],10:[function(require,module,exports){
+module.exports = function(word, lang, emojies) {
+  let variants = [];
+
+  for (let a in emojies) {
+    if (emojies[a][lang]) {
+      let name = emojies[a][lang].name;
+      let keywords = emojies[a][lang].keywords;
+
+      if (name === word) {
+        variants.push(a);
+
+        break; // самый лучший вариант
+      }
+
+      for (let b in keywords) {
+        if (keywords[b] === word) {
+          variants.push(a);
+        }
+      }
+    }
+  }
+
+  return variants[Math.floor(Math.random() * variants.length)];
+}
+},{}]},{},[4]);
