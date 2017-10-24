@@ -2498,32 +2498,13 @@ Az.load = function(url, responseType, callback) {
 
 module.exports = Az
 },{"az":2}],5:[function(require,module,exports){
-// поддержка пока что только русского и английского из-за начальной формы
-var Az = require('./az'),
-    translateText = require('./translateText');
-
-// параллелить через workers,
-// английский язык,
-// массив со всеми названиями и ключевыми словами, с которым сначала идёт проверка, мол, стоит ли уже дальше проверять все эмоджи или нет
-// fallback: https://github.com/lautis/emojie
-
-// init
-Az.Morph.init('node_modules/az/dicts', function() {
-  var input = document.getElementById('input');
-  var output = document.getElementById('output');
-
-  document.getElementsByTagName('button')[0].onclick = function() {
-    output.textContent = translateText(input.value);
-  };
-});
-},{"./az":4,"./translateText":10}],6:[function(require,module,exports){
 const LANG = {
   RU: 'ru',
   EN: 'en'
 }
 
 module.exports = LANG;
-},{}],7:[function(require,module,exports){
+},{}],6:[function(require,module,exports){
 var Az = require('./az')
     LANG = require('./lang');
 
@@ -2551,19 +2532,19 @@ module.exports = function(word, lang) {
 
   return word;
 }
-},{"./az":4,"./lang":6}],8:[function(require,module,exports){
+},{"./az":4,"./lang":5}],7:[function(require,module,exports){
 module.exports = function(text) {
   var specialSymbols = /(@|&|'|\(|\)|<|>|#)/g;
 
   return text.replace(specialSymbols, '').toLowerCase();
 }
-},{}],9:[function(require,module,exports){
+},{}],8:[function(require,module,exports){
 var Az = require('./az');
 
 module.exports = function(text) {
   return Az.Tokens(text).done();
 }
-},{"./az":4}],10:[function(require,module,exports){
+},{"./az":4}],9:[function(require,module,exports){
 var Az = require('./az'),
     LANG = require('./lang'),
     emojies = require('../converter/emojies.json'),
@@ -2605,7 +2586,7 @@ module.exports = function(text) {
 
   return tokens.join(' ');
 }
-},{"../converter/emojies.json":1,"./az":4,"./lang":6,"./normalizeWord":7,"./prepareText":8,"./tokenization":9,"./wordToEmoji":11}],11:[function(require,module,exports){
+},{"../converter/emojies.json":1,"./az":4,"./lang":5,"./normalizeWord":6,"./prepareText":7,"./tokenization":8,"./wordToEmoji":10}],10:[function(require,module,exports){
 module.exports = function(word, lang, emojies) {
   let variants = [];
 
@@ -2630,4 +2611,13 @@ module.exports = function(word, lang, emojies) {
 
   return variants[Math.floor(Math.random() * variants.length)];
 }
-},{}]},{},[5]);
+},{}],11:[function(require,module,exports){
+var Az = require('./az'),
+    translateText = require('./translateText');
+
+Az.Morph.init('../node_modules/az/dicts', function() {
+  onmessage = function(e) {
+    postMessage(translateText(e.data));
+  }
+});
+},{"./az":4,"./translateText":9}]},{},[11]);
