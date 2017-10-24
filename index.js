@@ -2506,7 +2506,10 @@ window.update = function() {
       word,
       lang;
 
-  // параллелить через workers
+  // параллелить через workers,
+  // английский язык,
+  // код отрефакторить и в разные файлы,
+  // массив со всеми названиями и ключевыми словами, с которым сначала идёт проверка, мол, стоит ли уже дальше проверять все эмоджи или нет
   for (let a = 0; a < tokens.length; a++) {
     if (tokens[a].type === Az.Tokens.WORD) {
       switch (tokens[a].subType) {
@@ -2529,22 +2532,31 @@ window.update = function() {
 
           break;
       }
-        
+
       if (typeof word == 'string') { // отсекаем не существительные, глаголы или прилагательные
+        let variants = [];
+
         for (let b in emojiData) {
           if (emojiData[b][lang]) {
-            let keywords = emojiData[b][lang].keywords.split(' ');
+            let name = emojiData[b][lang].name;
+            let keywords = emojiData[b][lang].keywords;
 
-            if (emojiData[b][lang].name == word ||
-                keywords[0] == word ||
-                keywords[1] == word ||
-                keywords[2] == word ||
-                keywords[3] == word) { // бывает по десять кейвордов, переделать
-              tokens[a] += b;
+            if (name == word) {
+              variants.push(b);
 
-              break;
+              break; // самый лучший вариант
+            }
+
+            for (let c in keywords) {
+              if (keywords[c] == word) {
+                variants.push(b);
+              }
             }
           }
+        }
+
+        if (variants.length) {
+          tokens[a] += ' ' + variants[Math.floor(Math.random() * variants.length)];
         }
       }
     }

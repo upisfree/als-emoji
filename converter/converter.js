@@ -40,7 +40,12 @@ xml.on('endElement: annotation', function(item) {
   if (item['$'].type) {
     output[symbol][language].name = item['$text'];
   } else {
-    output[symbol][language].keywords = item['$text'].replace(/\s\|/g, '');
+    let keywords = item['$text'].split('|');
+    output[symbol][language].keywords = [];
+
+    for (let i in keywords) {
+      output[symbol][language].keywords.push(keywords[i].trim());
+    }
   }
 
   if (output[symbol][language].name && output[symbol][language].keywords) {
