@@ -1,7 +1,6 @@
 const LANG = {
   RU: 'ru',
-  EN: 'en',
-  ZH: 'zh'
+  EN: 'en'
 }
 
 module.exports = LANG;

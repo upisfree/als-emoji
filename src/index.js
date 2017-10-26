@@ -1,5 +1,4 @@
 // на старых виндах fallback: https://github.com/lautis/emojie
-// https://github.com/yanyiwu/nodejieba
 
 var input = document.getElementById('input');
 var output = document.getElementById('output');

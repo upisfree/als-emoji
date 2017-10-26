@@ -12,10 +12,8 @@ module.exports = function(text) {
       word,
       lang;
 
-  console.log(tokens);
-
   for (let a = 0; a < tokens.length; a++) {
-    // if (tokens[a].type === Az.Tokens.WORD) {
+    if (tokens[a].type === Az.Tokens.WORD) {
       switch (tokens[a].subType) {
         case Az.Tokens.CYRIL:
           lang = LANG.RU;
@@ -25,13 +23,7 @@ module.exports = function(text) {
           lang = LANG.EN;
 
           break;
-        default:
-          lang = LANG.ZH;
-
-          break;
       }
-
-      console.log(tokens[a]);
 
       word = normalizeWord(tokens[a].toString(), lang);
 
@@ -42,7 +34,7 @@ module.exports = function(text) {
           tokens[a] += ' ' + emoji;
         }
       }
-    // }
+    }
   }
 
   return tokens.join(' ');
