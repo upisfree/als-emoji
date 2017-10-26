@@ -1,13 +1,15 @@
 (function e(t,n,r){function s(o,u){if(!n[o]){if(!t[o]){var a=typeof require=="function"&&require;if(!u&&a)return a(o,!0);if(i)return i(o,!0);var f=new Error("Cannot find module '"+o+"'");throw f.code="MODULE_NOT_FOUND",f}var l=n[o]={exports:{}};t[o][0].call(l.exports,function(e){var n=t[o][1][e];return s(n?n:e)},l,l.exports,e,t,n,r)}return n[o].exports}var i=typeof require=="function"&&require;for(var o=0;o<r.length;o++)s(r[o]);return s})({1:[function(require,module,exports){
-// поддержка пока что только русского и английского из-за начальной формы
-
-// параллелить через workers,
-// английский язык,
-// массив со всеми названиями и ключевыми словами, с которым сначала идёт проверка, мол, стоит ли уже дальше проверять все эмоджи или нет
+// отсылать на проверку только изменившиеся части текста С ПОСЛЕДНЕЙ ПРОВЕРКИ и если много поменялось, то проверять всё
 // fallback: https://github.com/lautis/emojie
+
+// var diff = require('diff');
+// var oldText = '';
 
 var input = document.getElementById('input');
 var output = document.getElementById('output');
+
+
+// 217 ms — 1578 words
 
 var worker = new Worker('./bin/worker.js');
 
@@ -15,7 +17,7 @@ worker.onmessage = function(e) {
   output.textContent = e.data;
 }
 
-input.oninput = function() {
+input.oninput = function(e) {
   worker.postMessage(input.value);
 }
 },{}]},{},[1]);
