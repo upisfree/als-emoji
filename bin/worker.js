@@ -2805,11 +2805,16 @@ module.exports = function(word, lang, emojies) {
 }
 },{}],12:[function(require,module,exports){
 var Az = require('./az'),
-    translateText = require('./translateText');
+    translateText = require('./translateText'),
+    isInit = false;
 
 Az.Morph.init('../node_modules/az/dicts', function() {
-  onmessage = function(e) {
-    postMessage(translateText(e.data));
-  }
+  isInit = true;
 });
+
+onmessage = function(e) {
+  if (isInit) {
+    postMessage(translateText(e.data));    
+  }
+}
 },{"./az":5,"./translateText":10}]},{},[12]);

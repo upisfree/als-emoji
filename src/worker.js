@@ -1,8 +1,13 @@
 var Az = require('./az'),
-    translateText = require('./translateText');
+    translateText = require('./translateText'),
+    isInit = false;
 
 Az.Morph.init('../node_modules/az/dicts', function() {
-  onmessage = function(e) {
-    postMessage(translateText(e.data));
-  }
+  isInit = true;
 });
+
+onmessage = function(e) {
+  if (isInit) {
+    postMessage(translateText(e.data));    
+  }
+}
