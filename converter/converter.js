@@ -56,6 +56,8 @@ function convert(xmlPath) {
           console.log(err);
         }
 
+        console.log('Done!');
+
         return;
       });
     }

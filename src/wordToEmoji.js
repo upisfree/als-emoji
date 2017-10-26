@@ -1,4 +1,6 @@
 module.exports = function(word, lang, emojies) {
+  console.log(emojies[lang]['names'][word]);
+
   if (emojies[lang]['names'][word]) {
     return emojies[lang]['names'][word];
   }
