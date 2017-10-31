@@ -1,7 +1,7 @@
 var Az = require('./az')
     franc = require('franc-min'),
-    LANG = require('./lang'),
-    emojies = require('../converter/emojies.json'),
+    LANG = require('../lang'),
+    emojies = require('../../converter/emojies.json'),
     tokenization = require('./tokenization'),
     normalizeWord = require('./normalizeWord'),
     wordToEmoji = require('./wordToEmoji'),

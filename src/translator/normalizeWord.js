@@ -1,6 +1,6 @@
 var Az = require('./az'),
     stemmer = require('stemmer'),
-    LANG = require('./lang');
+    LANG = require('../lang');
 
 module.exports = function(word, lang) {
   switch (lang) {
