@@ -3338,6 +3338,8 @@ module.exports = function(text) {
   return tokens.join('');
 }
 },{"../lang":11,"./az":12,"./normalizeWord":13,"./tokenization":14,"./wordToEmoji":16,"franc-min":6}],16:[function(require,module,exports){
+var random = require('../utils/random');
+
 module.exports = function(word, lang) {
   word = word.toLowerCase();
 
@@ -3348,10 +3350,14 @@ module.exports = function(word, lang) {
   if (emojies[lang]['keywords'][word]) {
     let keywords = emojies[lang]['keywords'][word];
 
-    return keywords[Math.floor(Math.random() * keywords.length)];
+    return keywords[random(keywords.length)];
   }
 }
-},{}],17:[function(require,module,exports){
+},{"../utils/random":17}],17:[function(require,module,exports){
+module.exports = function(max) {
+  return Math.floor(Math.random() * max);
+}
+},{}],18:[function(require,module,exports){
 var Az = require('./translator/az'),
     translateText = require('./translator/translateText'),
     isInit = false;
@@ -3367,4 +3373,4 @@ onmessage = function(e) {
     postMessage(translateText(e.data));    
   }
 }
-},{"./translator/az":12,"./translator/translateText":15}]},{},[17]);
+},{"./translator/az":12,"./translator/translateText":15}]},{},[18]);

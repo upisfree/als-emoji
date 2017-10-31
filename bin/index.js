@@ -6,46 +6,79 @@ const CONFIG = {
 
 module.exports = CONFIG;
 },{}],2:[function(require,module,exports){
-// гульпом при релизе копировать json и делать из него js и подключать в html. эмоджи вынести в отдельный файл, что коннектится в index.html, чтобы можно было использовать эмоджи в UI (название тулзы: радость —> 😂, когда наводишь, делает это очень быстро)
 // пора начать оформлять дизайн
 // на старых виндах fallback: https://github.com/twitter/twemoji
 
 var CONFIG = require('./config'),
-    time = Date.now(),
-    delay = 0,
+    random = require('./utils/random'),
+    longTextTime = Date.now(),
+    longTextDelay = 0,
+    isMouseOnTitle = false,
     input = document.getElementById('input'),
     output = document.getElementById('output'),
+    title = document.getElementById('title'),
     worker = new Worker('./bin/worker.js');
-
-function tick() {
-  if ((Date.now() - time) > delay && time !== 0) {
-    time = 0;
-
-    worker.postMessage(input.value);
-  }
-
-  requestAnimationFrame(tick);
-}
 
 worker.onmessage = function(e) {
   output.textContent = e.data;
 }
 
 input.oninput = input.onchange = function() {
-  time = Date.now();
+  longTextTime = Date.now();
 
   // instant translate for short texts and delay for long texts (to prevent this: https://i.imgur.com/6ZChXob.gif)
   if (input.value.length >= CONFIG.LONG_TEXT_LENGTH) {
-    delay = CONFIG.LONG_TEXT_DELAY;
+    longTextDelay = CONFIG.LONG_TEXT_DELAY;
   } else {
-    delay = 0;
+    longTextDelay = 0;
   }
 }
 
+title.onmouseenter = function() {
+  isMouseOnTitle = true;
+}
 
+title.onmouseleave = function() {
+  isMouseOnTitle = false;
+}
 
-console.log(emojies);
-
-
+// start
 requestAnimationFrame(tick);
-},{"./config":1}]},{},[2]);
+
+
+
+
+
+
+// funcs
+function tick() {
+  // translate
+  if ((Date.now() - longTextTime) > longTextDelay && longTextTime !== 0) {
+    longTextTime = 0;
+
+    worker.postMessage(input.value);
+  }
+
+  // title
+  if (isMouseOnTitle && !(Date.now() % 14)) {
+    changeTitle();
+  }
+
+  requestAnimationFrame(tick);
+}
+
+function changeTitle() {
+  let dict = emojies['ru']['keywords'],
+      keys = Object.keys(dict),
+      key = keys[random(keys.length)],
+      variants = dict[key],
+      emoji = variants[random(variants.length)];
+
+  title.textContent = key + ' ⇒ ' + emoji;
+}
+
+},{"./config":1,"./utils/random":3}],3:[function(require,module,exports){
+module.exports = function(max) {
+  return Math.floor(Math.random() * max);
+}
+},{}]},{},[2]);
