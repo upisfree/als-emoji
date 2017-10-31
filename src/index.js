@@ -34,4 +34,9 @@ input.oninput = input.onchange = function() {
   }
 }
 
+
+
+console.log(emojies);
+
+
 requestAnimationFrame(tick);

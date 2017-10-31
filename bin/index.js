@@ -42,5 +42,10 @@ input.oninput = input.onchange = function() {
   }
 }
 
+
+
+console.log(emojies);
+
+
 requestAnimationFrame(tick);
 },{"./config":1}]},{},[2]);

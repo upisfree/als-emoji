@@ -1,7 +1,6 @@
 var Az = require('./az')
     franc = require('franc-min'),
     LANG = require('../lang'),
-    emojies = require('../../converter/emojies.json'),
     tokenization = require('./tokenization'),
     normalizeWord = require('./normalizeWord'),
     wordToEmoji = require('./wordToEmoji'),
@@ -21,7 +20,7 @@ module.exports = function(text) {
         word = normalizeWord(word, lang);
 
         if (word) {
-          let emoji = wordToEmoji(word, lang, emojies);
+          let emoji = wordToEmoji(word, lang);
 
           if (emoji) {
             tokens[a] += ' ' + emoji;

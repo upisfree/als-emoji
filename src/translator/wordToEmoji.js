@@ -1,4 +1,4 @@
-module.exports = function(word, lang, emojies) {
+module.exports = function(word, lang) {
   word = word.toLowerCase();
 
   if (emojies[lang]['names'][word]) {
