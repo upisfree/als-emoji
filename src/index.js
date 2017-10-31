@@ -6,12 +6,13 @@
 //
 var CONFIG = require('./config'),
     time = Date.now(),
+    delay = 0,
     input = document.getElementById('input'),
     output = document.getElementById('output'),
     worker = new Worker('./bin/worker.js');
 
 function tick() {
-  if ((Date.now() - time) > CONFIG.TYPING_END_DELAY && time !== 0) {
+  if ((Date.now() - time) > delay && time !== 0) {
     time = 0;
 
     worker.postMessage(input.value);
@@ -26,6 +27,13 @@ worker.onmessage = function(e) {
 
 input.oninput = input.onchange = function() {
   time = Date.now();
+
+  // instant translate for short texts and delay for long texts (to prevent this: https://i.imgur.com/6ZChXob.gif)
+  if (input.value.length >= CONFIG.LONG_TEXT_LENGTH) {
+    delay = CONFIG.LONG_TEXT_DELAY;
+  } else {
+    delay = 0;
+  }
 }
 
 requestAnimationFrame(tick);
