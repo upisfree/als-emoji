@@ -3359,7 +3359,7 @@ var Az = require('./az'),
     translateText = require('./translateText'),
     isInit = false;
 
-Az.Morph.init('../node_modules/az/dicts', function() {
+Az.Morph.init('../dicts/ru', function() {
   isInit = true;
 });
 
