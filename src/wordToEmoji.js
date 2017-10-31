@@ -1,5 +1,5 @@
 module.exports = function(word, lang, emojies) {
-  console.log(emojies[lang]['names'][word]);
+  word = word.toLowerCase();
 
   if (emojies[lang]['names'][word]) {
     return emojies[lang]['names'][word];

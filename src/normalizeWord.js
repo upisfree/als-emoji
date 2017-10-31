@@ -13,7 +13,7 @@ module.exports = function(word, lang) {
             // word.tag.POS === 'ADVB' || // наречие
             word.tag.POS === 'INFN' ||
             word.tag.POS === 'ADJF') {
-          word = word.normalize().word; // в русском только здесь эмоджи подставляем
+          word = word.normalize().word;
         } else {
           word = null;
         }
