@@ -1,6 +1,6 @@
 var Az = require('az');
 
-// fix Az lib
+// чиним загрузку словарей Az (токенизатор и стеммер для русского)
 Az.load = function(url, responseType, callback) {
   var xhr = new XMLHttpRequest();
   xhr.open('GET', url, true);

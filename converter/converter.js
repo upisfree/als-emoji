@@ -1,13 +1,23 @@
 var fs = require('fs'),
     path = require('path'),
     XmlStream = require('xml-stream'),
-    xmlPaths = [],
-    jsonPath = 'emojies.json',
+    inPaths = [],
+    outPath = 'emojies.json',
     language,
     output = {};
 
-for (let i = 2; i < process.argv.length; i++) {
-  xmlPaths.push(path.resolve(process.argv[i]));
+if (process.argv.length === 3 && fs.lstatSync(process.argv[2]).isDirectory()) {
+  let folder = process.argv[2];
+
+  fs.readdirSync(folder).forEach(function(file) {
+    if (path.extname(file) === '.xml') {
+      inPaths.push(path.resolve(folder, file));
+    }
+  });
+} else {
+  for (let i = 2; i < process.argv.length; i++) {
+    inPaths.push(path.resolve(process.argv[i]));
+  }  
 }
 
 function convert(xmlPath) {
@@ -46,12 +56,12 @@ function convert(xmlPath) {
   });
 
   xml.on('endElement: ldml', function(item) {
-    let path = xmlPaths[xmlPaths.indexOf(xmlPath) + 1];
+    let path = inPaths[inPaths.indexOf(xmlPath) + 1];
     
     if (path) {
       convert(path);
     } else {
-      fs.writeFile(jsonPath, JSON.stringify(output), function(err) {
+      fs.writeFile(outPath, JSON.stringify(output), function(err) {
         if (err) {
           console.log(err);
         }
@@ -63,10 +73,9 @@ function convert(xmlPath) {
     }
   });
 
-  // errors
   readStream.on('error', function(err) {
     console.log(err);
   });
 }
 
-convert(xmlPaths[0]);
+convert(inPaths[0]);

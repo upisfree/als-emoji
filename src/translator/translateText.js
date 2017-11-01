@@ -4,7 +4,7 @@ var Az = require('./az')
     tokenization = require('./tokenization'),
     normalizeWord = require('./normalizeWord'),
     wordToEmoji = require('./wordToEmoji'),
-    languageDetectOptions = { whitelist: ['eng', 'rus'], minLength: 2 };
+    languageDetectOptions = { whitelist: Object.keys(LANG.FRANC), minLength: 2 };
 
 module.exports = function(text) {
   var tokens = tokenization(text),

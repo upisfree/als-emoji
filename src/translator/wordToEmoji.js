@@ -1,7 +1,10 @@
-var random = require('../utils/random');
+var random = require('../utils/random'),
+    LANG = require('../lang');
 
 module.exports = function(word, lang) {
-  word = word.toLowerCase();
+  if (lang !== LANG.DE) { // в немецком все существительные пишутся с большой буквы
+    word = word.toLowerCase();    
+  }
 
   if (emojies[lang]['names'][word]) {
     return emojies[lang]['names'][word];

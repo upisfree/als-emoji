@@ -3231,21 +3231,33 @@ exports.right = function(str){
 
 },{}],11:[function(require,module,exports){
 const LANG = {
-  EN: 'en',
-  RU: 'ru'
+  DE: 'de', // German
+  EN: 'en', // English
+  ES: 'es', // Spanish
+  FR: 'fr', // French
+  IT: 'it', // Italian
+  PT: 'pt', // Portuguese
+  RU: 'ru', // Russian
+  TR: 'tr'  // Turkish
 };
 
-// franc (language detection library) uses ISO 639-2 instead ISO 639-1 which uses in Unicode, so we need a code converter
+// franc (библиотека, что определяет язык) использует ISO 639-2 вместо ISO 639-1, которым пользуется Юникод, поэтому нам нужен преобразователь
 LANG.FRANC = {
-  'rus': LANG.RU,
+  'deu': LANG.DE,
   'eng': LANG.EN,
+  'spa': LANG.ES,
+  'fra': LANG.FR,
+  'ita': LANG.IT,
+  'por': LANG.PT,
+  'rus': LANG.RU,
+  'tur': LANG.TR
 };
 
 module.exports = LANG;
 },{}],12:[function(require,module,exports){
 var Az = require('az');
 
-// fix Az lib
+// чиним загрузку словарей Az (токенизатор и стеммер для русского)
 Az.load = function(url, responseType, callback) {
   var xhr = new XMLHttpRequest();
   xhr.open('GET', url, true);
@@ -3309,7 +3321,7 @@ var Az = require('./az')
     tokenization = require('./tokenization'),
     normalizeWord = require('./normalizeWord'),
     wordToEmoji = require('./wordToEmoji'),
-    languageDetectOptions = { whitelist: ['eng', 'rus'], minLength: 2 };
+    languageDetectOptions = { whitelist: Object.keys(LANG.FRANC), minLength: 2 };
 
 module.exports = function(text) {
   var tokens = tokenization(text),
@@ -3338,10 +3350,13 @@ module.exports = function(text) {
   return tokens.join('');
 }
 },{"../lang":11,"./az":12,"./normalizeWord":13,"./tokenization":14,"./wordToEmoji":16,"franc-min":6}],16:[function(require,module,exports){
-var random = require('../utils/random');
+var random = require('../utils/random'),
+    LANG = require('../lang');
 
 module.exports = function(word, lang) {
-  word = word.toLowerCase();
+  if (lang !== LANG.DE) { // в немецком все существительные пишутся с большой буквы
+    word = word.toLowerCase();    
+  }
 
   if (emojies[lang]['names'][word]) {
     return emojies[lang]['names'][word];
@@ -3353,7 +3368,7 @@ module.exports = function(word, lang) {
     return keywords[random(keywords.length)];
   }
 }
-},{"../utils/random":17}],17:[function(require,module,exports){
+},{"../lang":11,"../utils/random":17}],17:[function(require,module,exports){
 module.exports = function(max) {
   return Math.floor(Math.random() * max);
 }

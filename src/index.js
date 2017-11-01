@@ -1,7 +1,8 @@
 // пора начать оформлять дизайн
-// на старых виндах fallback: https://github.com/twitter/twemoji
+// на старых виндах fallback (это просто): https://github.com/twitter/twemoji
 
 var CONFIG = require('./config'),
+    LANG = require('./lang'),
     random = require('./utils/random'),
     longTextTime = Date.now(),
     longTextDelay = 0,
@@ -18,7 +19,7 @@ worker.onmessage = function(e) {
 input.oninput = input.onchange = function() {
   longTextTime = Date.now();
 
-  // instant translate for short texts and delay for long texts (to prevent this: https://i.imgur.com/6ZChXob.gif)
+  // мгновенный перевод для коротких текстов и задержка для длинных (чтобы не было такого: https://i.imgur.com/6ZChXob.gif)
   if (input.value.length >= CONFIG.LONG_TEXT_LENGTH) {
     longTextDelay = CONFIG.LONG_TEXT_DELAY;
   } else {
@@ -34,20 +35,20 @@ title.onmouseleave = function() {
   isMouseOnTitle = false;
 }
 
-// start
+// старт
 requestAnimationFrame(tick);
 
 // funcs
 function tick() {
-  // translate
+  // перевод
   if ((Date.now() - longTextTime) > longTextDelay && longTextTime !== 0) {
     longTextTime = 0;
 
     worker.postMessage(input.value);
   }
 
-  // title
-  if (isMouseOnTitle && !(Date.now() % 14)) {
+  // заголовок
+  if (isMouseOnTitle && !(Date.now() % 10)) {
     changeTitle();
   }
 
@@ -55,7 +56,7 @@ function tick() {
 }
 
 function changeTitle() {
-  let dict = emojies['ru']['keywords'],
+  let dict = emojies[(Math.random() > 0.5) ? LANG.RU : LANG.EN]['keywords'],
       keys = Object.keys(dict),
       key = keys[random(keys.length)],
       variants = dict[key],
