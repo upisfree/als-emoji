@@ -8,6 +8,7 @@ body {
 #input, #output {
   width: calc(50% - 27px);
   height: auto;
+  min-height: 50%;
   box-sizing: border-box;
   margin: 0;
   margin-bottom: 40px;
@@ -20,11 +21,11 @@ body {
   outline: none;
   white-space: pre-wrap;
   word-break: break-word;
+  transition: all .2s;
 }
 
 #input {
   float: left;
-  min-height: calc(50% + 22px);
   font-family: 'Fira Sans', sans-serif;
   resize: none;
   overflow: hidden;
@@ -37,7 +38,6 @@ body {
 
 #output {
   float: right;
-  min-height: 50%;
 }
 
 #title {
