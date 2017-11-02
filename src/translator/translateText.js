@@ -6,7 +6,7 @@ var Az = require('./az')
     wordToEmoji = require('./wordToEmoji'),
     languageDetectOptions = { whitelist: Object.keys(LANG.FRANC), minLength: 2 };
 
-module.exports = function(text) {
+module.exports = function(text, settings) {
   var tokens = tokenization(text),
       word,
       lang;
@@ -23,7 +23,11 @@ module.exports = function(text) {
           let emoji = wordToEmoji(word, lang);
 
           if (emoji) {
-            tokens[a] += ' ' + emoji;
+            if (settings.replaceWords) {
+              tokens[a] = emoji;
+            } else {
+              tokens[a] += ' ' + emoji;              
+            }
           }
         }
       }

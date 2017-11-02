@@ -7,14 +7,14 @@ var gulp = require('gulp'),
     rename = require('gulp-rename');
 
 // TODO: refactor this :/
-gulp.task('develop-index', function()
+gulp.task('develop-ui', function()
 {
   return browserify(
   {
-    entries: ['./src/index.js']
+    entries: ['./src/ui.js']
   })
   .bundle()
-  .pipe(source('index.js'))
+  .pipe(source('ui.js'))
   .pipe(buffer())
   .pipe(gulp.dest('./bin'));
 });
@@ -31,14 +31,14 @@ gulp.task('develop-worker', function()
   .pipe(gulp.dest('./bin'));
 });
 
-gulp.task('min-index', function() // release
+gulp.task('min-ui', function() // release
 {
   return browserify(
   {
-    entries: ['./src/index.js']
+    entries: ['./src/ui.js']
   })
   .bundle()
-  .pipe(source('index.js'))
+  .pipe(source('ui.js'))
   .pipe(buffer())
   .pipe(uglify())
   .pipe(gulp.dest('./bin'));
@@ -66,9 +66,9 @@ gulp.task('copy-emojies', function()
 });
 
 gulp.task('dev', function() {
-  gulp.watch('./src/**', ['develop-index', 'develop-worker']);
+  gulp.watch('./src/**', ['develop-ui', 'develop-worker']);
   gulp.watch('./converter/emojies.json', ['copy-emojies']);
 });
 
-gulp.task('min', ['min-index', 'min-worker', 'copy-emojies']);
+gulp.task('min', ['min-ui', 'min-worker', 'copy-emojies']);
 gulp.task('default', ['dev']);

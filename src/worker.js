@@ -10,6 +10,6 @@ Az.Morph.init('../dicts/ru', function() {
 
 onmessage = function(e) {
   if (isInit) {
-    postMessage(translateText(e.data));    
+    postMessage(translateText(e.data.text, e.data.settings));    
   }
 }

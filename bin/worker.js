@@ -3231,14 +3231,14 @@ exports.right = function(str){
 
 },{}],11:[function(require,module,exports){
 const LANG = {
-  DE: 'de', // German
-  EN: 'en', // English
-  ES: 'es', // Spanish
-  FR: 'fr', // French
-  IT: 'it', // Italian
-  PT: 'pt', // Portuguese
-  RU: 'ru', // Russian
-  TR: 'tr'  // Turkish
+  DE: 'de', // German 🇩🇪
+  EN: 'en', // English 🇬🇧
+  ES: 'es', // Spanish 🇪🇸
+  FR: 'fr', // French 🇫🇷
+  IT: 'it', // Italian 🇮🇹
+  PT: 'pt', // Portuguese 🇵🇹
+  RU: 'ru', // Russian 🇷🇺
+  TR: 'tr'  // Turkish 🇹🇷
 };
 
 // franc (библиотека, что определяет язык) использует ISO 639-2 вместо ISO 639-1, которым пользуется Юникод, поэтому нам нужен преобразователь
@@ -3323,7 +3323,7 @@ var Az = require('./az')
     wordToEmoji = require('./wordToEmoji'),
     languageDetectOptions = { whitelist: Object.keys(LANG.FRANC), minLength: 2 };
 
-module.exports = function(text) {
+module.exports = function(text, settings) {
   var tokens = tokenization(text),
       word,
       lang;
@@ -3340,7 +3340,11 @@ module.exports = function(text) {
           let emoji = wordToEmoji(word, lang);
 
           if (emoji) {
-            tokens[a] += ' ' + emoji;
+            if (settings.replaceWords) {
+              tokens[a] = emoji;
+            } else {
+              tokens[a] += ' ' + emoji;              
+            }
           }
         }
       }
@@ -3385,7 +3389,7 @@ Az.Morph.init('../dicts/ru', function() {
 
 onmessage = function(e) {
   if (isInit) {
-    postMessage(translateText(e.data));    
+    postMessage(translateText(e.data.text, e.data.settings));    
   }
 }
 },{"./translator/az":12,"./translator/translateText":15}]},{},[18]);
