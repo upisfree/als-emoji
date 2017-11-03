@@ -4,12 +4,8 @@ var Az = require('./translator/az'),
 
 importScripts('emojies.js'); // now we've got global emojies object
 
-Az.Morph.init('../dicts/ru', function() {
-  isInit = true;
-});
+Az.Morph.init('../dicts/ru');
 
 onmessage = function(e) {
-  if (isInit) {
-    postMessage(translateText(e.data.text, e.data.settings));    
-  }
+  postMessage(translateText(e.data.text, e.data.settings));    
 }

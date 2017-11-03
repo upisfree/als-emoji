@@ -3281,19 +3281,24 @@ var Az = require('./az'),
 module.exports = function(word, lang) {
   switch (lang) {
     case LANG.RU:
-      word = Az.Morph(word)[0];
+      // с удовольствием бы не использовал try, если бы в Az.Morph был бы флаг init
+      // но если текст уже приходит, а словари ещё не загрузились, переводим пока без приведения в начальную форму
+      try { 
+        word = Az.Morph(word)[0];
 
-      if (word) { // случается, что предсказыватель ничего не предсказывает
-        // приводим в начальную форму только существительные, глаголы и прилагательные
-        if (word.tag.POS === 'NOUN' ||
-            // word.tag.POS === 'ADVB' || // наречие
-            word.tag.POS === 'INFN' ||
-            word.tag.POS === 'ADJF') {
-          word = word.normalize().word;
-        } else {
-          word = null;
+        // случается, что предсказыватель ничего не предсказывает
+        if (word) {
+          // приводим в начальную форму только существительные, глаголы и прилагательные
+          if (word.tag.POS === 'NOUN' ||
+              word.tag.POS === 'INFN' ||
+              word.tag.POS === 'ADJF') {
+            word = word.normalize().word;
+          } else {
+            word = null;
+          }
         }
       }
+      catch (e) { }
 
       break;
     case LANG.EN:
@@ -3383,13 +3388,9 @@ var Az = require('./translator/az'),
 
 importScripts('emojies.js'); // now we've got global emojies object
 
-Az.Morph.init('../dicts/ru', function() {
-  isInit = true;
-});
+Az.Morph.init('../dicts/ru');
 
 onmessage = function(e) {
-  if (isInit) {
-    postMessage(translateText(e.data.text, e.data.settings));    
-  }
+  postMessage(translateText(e.data.text, e.data.settings));    
 }
 },{"./translator/az":12,"./translator/translateText":15}]},{},[18]);

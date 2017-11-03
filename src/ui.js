@@ -8,7 +8,7 @@ var CONFIG = require('./config'),
     longTextDelay = 0,
     isMouseOnTitleArrow = false,
     now,
-    settings = { replaceWords: false },
+    settings = { replaceWords: false, copyOnClick: true },
     input = document.getElementById('input'),
     output = document.getElementById('output'),
     titleWord = document.getElementById('title-word'),
@@ -17,6 +17,11 @@ var CONFIG = require('./config'),
     settingsReplaceWords = document.getElementById('settings-replace-words'),
     settingsCopyOnClick = document.getElementById('settings-copy-on-click'),
     worker = new Worker('./bin/worker.js');
+
+var Az = require('./translator/az');
+
+// var twemoji = require('twemoji');
+// twemoji.parse(document.body);
 
 worker.onmessage = function(e) {
   output.innerHTML = e.data + '\n\n'; // \n\n — это чёртова гениальная магия, которая чинит textarea и не даёт тексту пропасть внутри окна
