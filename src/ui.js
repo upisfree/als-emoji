@@ -4,10 +4,12 @@
 var CONFIG = require('./config'),
     LANG = require('./lang'),
     random = require('./utils/random'),
+    ifEmoji = require('if-emoji'),
+    now,
+    isFallbackNeeded = !(ifEmoji('😀')),
     longTextTime = Date.now(),
     longTextDelay = 0,
     isMouseOnTitleArrow = false,
-    now,
     settings = { replaceWords: false, copyOnClick: true },
     input = document.getElementById('input'),
     output = document.getElementById('output'),
@@ -23,13 +25,20 @@ var CONFIG = require('./config'),
     settingsCopyOnClick = document.getElementById('settings-copy-on-click'),
     worker = new Worker('./bin/worker.js');
 
-// var twemoji = require('twemoji');
-// twemoji.parse(document.body);
+if (isFallbackNeeded) {
+  var twemoji = require('twemoji');
+
+  twemoji.parse(document.getElementById('about'));
+}
 
 worker.onmessage = function(e) {
   output.innerHTML = e.data + '\n\n'; // \n\n — это чёртова гениальная магия, которая чинит textarea и не даёт тексту пропасть внутри окна
 
   input.style.height = output.getBoundingClientRect().height + 'px';
+
+  if (isFallbackNeeded) {
+    twemoji.parse(output);
+  }
 }
 
 input.oninput = input.onchange = function() {
@@ -42,7 +51,6 @@ input.oninput = input.onchange = function() {
     longTextDelay = 0;
   }
 }
-
 
 // window.addEventListener 'touchend', (e) ->
 
@@ -119,6 +127,10 @@ function changeTitle() {
   if (word.length === 3 && emoji.length === 2) { // отсекаем эмоджи с модификатором пола
     titleWord.textContent = word.toLowerCase();
     titleEmoji.textContent = emoji;
+
+    if (isFallbackNeeded) {
+      twemoji.parse(titleEmoji);
+    }
   } else {
     changeTitle();
   }

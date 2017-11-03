@@ -5,11 +5,17 @@ body {
   font-family: 'Fira Sans', sans-serif;
 }
 
-// хак для файрфокса, который чинит min-height у #input, #output
+/* хак для файрфокса, который чинит min-height у #input, #output */
 @-moz-document url-prefix() {
   body {
     height: 100%;
   }
+}
+
+/* fallback */
+.emoji {
+  margin: 0 .05em 0 .1em;
+  vertical-align: text-top;
 }
 
 #input, #output {
@@ -29,6 +35,11 @@ body {
   white-space: pre-wrap;
   word-break: break-word;
   transition: all .2s;
+}
+
+#input .emoji, #output .emoji {
+  width: 14pt;
+  height: 14pt;
 }
 
 #input {
@@ -63,9 +74,18 @@ body {
   text-align: right;
 }
 
+#title-arrow {
+  vertical-align: top;
+}
+
 #title-emoji {
   width: 40%;
   text-align: left;
+}
+
+#title-emoji .emoji {
+  width: 34pt;
+  height: 34pt;
 }
 
 #subtitle {
@@ -91,6 +111,11 @@ body {
   margin-top: -5px;
   padding-left: 30px;
   list-style: none;
+}
+
+#about .emoji {
+  width: 14pt;
+  height: 14pt;
 }
 
 .italic {
