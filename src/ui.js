@@ -14,6 +14,11 @@ var CONFIG = require('./config'),
     titleWord = document.getElementById('title-word'),
     titleArrow = document.getElementById('title-arrow'),
     titleEmoji = document.getElementById('title-emoji'),
+    subtitle = document.getElementById('subtitle'),
+    subtitleDefaultText = 'перевод с восьми языков в эмоджи',
+    subtitleCopiedText = 'скопировано!',
+    copiedTextDelay = 2000,
+    copiedTime = 0,
     settingsReplaceWords = document.getElementById('settings-replace-words'),
     settingsCopyOnClick = document.getElementById('settings-copy-on-click'),
     worker = new Worker('./bin/worker.js');
@@ -45,7 +50,10 @@ output.onclick = function() {
   window.getSelection().selectAllChildren(output);
 
   if (settings.copyOnClick) {
-    document.execCommand('copy');    
+    document.execCommand('copy');
+
+    copiedTime = Date.now();
+    subtitle.textContent = subtitleCopiedText;
   }
 }
 
@@ -85,6 +93,13 @@ function tick() {
   // заголовок
   if (isMouseOnTitleArrow) {
     changeTitle();
+  }
+
+  // подзаголовок
+  if ((now - copiedTime) > copiedTextDelay && copiedTime !== 0) {
+    copiedTime = 0;
+
+    subtitle.textContent = subtitleDefaultText;
   }
 
   requestAnimationFrame(tick);
