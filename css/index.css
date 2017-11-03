@@ -5,10 +5,17 @@ body {
   font-family: 'Fira Sans', sans-serif;
 }
 
+// хак для файрфокса, который чинит min-height у #input, #output
+@-moz-document url-prefix() {
+  body {
+    height: 100%;
+  }
+}
+
 #input, #output {
   width: calc(50% - 27px);
   height: auto;
-  min-height: 50%;
+  min-height: 30%;
   box-sizing: border-box;
   margin: 0;
   margin-bottom: 40px;

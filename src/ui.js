@@ -18,8 +18,6 @@ var CONFIG = require('./config'),
     settingsCopyOnClick = document.getElementById('settings-copy-on-click'),
     worker = new Worker('./bin/worker.js');
 
-var Az = require('./translator/az');
-
 // var twemoji = require('twemoji');
 // twemoji.parse(document.body);
 
