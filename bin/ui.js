@@ -48,6 +48,7 @@ var CONFIG = require('./config'),
     titleArrow = document.getElementById('title-arrow'),
     titleEmoji = document.getElementById('title-emoji'),
     settingsReplaceWords = document.getElementById('settings-replace-words'),
+    settingsCopyOnClick = document.getElementById('settings-copy-on-click'),
     worker = new Worker('./bin/worker.js');
 
 worker.onmessage = function(e) {
@@ -67,6 +68,17 @@ input.oninput = input.onchange = function() {
   }
 }
 
+
+// window.addEventListener 'touchend', (e) ->
+
+output.onclick = function() {
+  window.getSelection().selectAllChildren(output);
+
+  if (settings.copyOnClick) {
+    document.execCommand('copy');    
+  }
+}
+
 titleArrow.onmousemove = function() {
   isMouseOnTitleArrow = true;
 }
@@ -79,6 +91,10 @@ settingsReplaceWords.onchange = function() {
   settings.replaceWords = settingsReplaceWords.checked;
 
   worker.postMessage({ text: input.value, settings: settings } );
+}
+
+settingsCopyOnClick.onchange = function() {
+  settings.copyOnClick = settingsCopyOnClick.checked;
 }
 
 // старт
