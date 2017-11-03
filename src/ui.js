@@ -28,7 +28,7 @@ input.oninput = input.onchange = function() {
   longTextTime = Date.now();
 
   // мгновенный перевод для коротких текстов и задержка для длинных (чтобы не было такого: https://i.imgur.com/6ZChXob.gif)
-  if (input.textContent.length >= CONFIG.LONG_TEXT_LENGTH) {
+  if (input.value.length >= CONFIG.LONG_TEXT_LENGTH) {
     longTextDelay = CONFIG.LONG_TEXT_DELAY;
   } else {
     longTextDelay = 0;
