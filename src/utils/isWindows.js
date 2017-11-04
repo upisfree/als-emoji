@@ -1,0 +1,1 @@
+module.exports = navigator.userAgent.indexOf('Windows') !== -1;

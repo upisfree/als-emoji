@@ -1,4 +1,5 @@
 .checkbox + label {
+  line-height: 1.6;
   cursor: pointer;
   user-select: none;
 }

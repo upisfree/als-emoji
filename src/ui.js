@@ -1,150 +1,82 @@
 var CONFIG = require('./config'),
-    LANG = require('./lang'),
-    random = require('./utils/random'),
     twemoji = require('twemoji'),
-    isFallbackNeeded = !(require('detect-emoji-support')()),
-    now,
-    longTextTime = Date.now(),
-    longTextDelay = 0,
-    isMouseOnTitleArrow = false,
-    settings = { replaceWords: false, copyOnClick: true },
-    input = document.getElementById('input'),
-    output = document.getElementById('output'),
-    variantsBlock = document.getElementById('variants'),
-    variantsValue = document.getElementById('variants-value'),
-    variantsWord = document.getElementById('variants-word'),
-    variantsSelectedWord,
-    titleWord = document.getElementById('title-word'),
-    titleArrow = document.getElementById('title-arrow'),
-    titleEmoji = document.getElementById('title-emoji'),
-    subtitle = document.getElementById('subtitle'),
-    subtitleDefaultText = 'перевод с восьми языков в эмоджи',
-    subtitleCopiedText = 'скопировано!',
-    copiedTextDelay = 2000,
-    copiedTime = 0,
-    settingsReplaceWords = document.getElementById('settings-replace-words'),
-    settingsCopyOnClick = document.getElementById('settings-copy-on-click'),
-    worker = new Worker('./bin/worker.js');
+    el = require('./ui/elements.js'),
+    tmp = require('./ui/tmp.js'),
+    tick = require('./tick.js'),
+    worker = new Worker('./bin/worker.js'),
+    isFallbackNeeded = require('./utils/isFallbackNeeded'),
+    isWindows = require('./utils/isWindows'),
+    settings = { replaceWords: false, copyOnClick: true };
 
-if (isFallbackNeeded || navigator.userAgent.indexOf('Windows') !== -1) { // все винды пока не показывают флаги стран, чиним
-  twemoji.parse(document.getElementById('about'));
+if (isFallbackNeeded || isWindows) { // все винды пока не показывают флаги стран, чиним
+  twemoji.parse(el.aboutBlock);
 }
 
 worker.onmessage = function(e) {
-  variants.style.opacity = 0;
+  el.variants.style.opacity = 0;
 
   if (e.data.text) {
-    output.innerHTML = e.data.text + '\n\n'; // \n\n — это чёртова гениальная магия, которая чинит textarea и не даёт тексту пропасть внутри окна    
-    input.style.height = output.getBoundingClientRect().height + 'px';
+    el.output.innerHTML = e.data.text + '\n\n'; // \n\n — это чёртова гениальная магия, которая чинит textarea и не даёт тексту пропасть внутри окна    
+    el.input.style.height = el.output.getBoundingClientRect().height + 'px';
   } else if (e.data.variants) {
-    variants.style.opacity = 1;
-    variantsWord.textContent = variantsSelectedWord;
-    variantsValue.textContent = e.data.variants;
+    el.variants.style.opacity = 1;
+    el.variantsWord.textContent = tmp.variantsSelectedWord;
+    el.variantsValue.textContent = e.data.variants;
   }
 
   if (isFallbackNeeded) {
-    twemoji.parse(output);
-    twemoji.parse(variants);
+    twemoji.parse(el.output);
+    twemoji.parse(el.variants);
   }
 }
 
-input.oninput = function() {
-  longTextTime = Date.now();
+el.input.oninput = function() {
+  tmp.longTextTime = Date.now();
 
   // мгновенный перевод для коротких текстов и задержка для длинных (чтобы не было такого: https://i.imgur.com/6ZChXob.gif)
-  if (input.value.length >= CONFIG.LONG_TEXT_LENGTH) {
-    longTextDelay = CONFIG.LONG_TEXT_DELAY;
+  if (el.input.value.length >= CONFIG.LONG_TEXT_LENGTH) {
+    tmp.longTextDelay = CONFIG.LONG_TEXT_DELAY;
   } else {
-    longTextDelay = 0;
+    tmp.longTextDelay = 0;
   }
 }
 
-output.onclick = function() {
-  window.getSelection().selectAllChildren(output);
+el.output.onclick = function() {
+  window.getSelection().selectAllChildren(el.output);
 
   if (settings.copyOnClick) {
     document.execCommand('copy');
 
-    copiedTime = Date.now();
-    subtitle.textContent = subtitleCopiedText;
+    tmp.copiedTime = Date.now();
+    el.subtitle.textContent = CONFIG.SUBTITLE_COPIED_TEXT;
   }
 }
 
-input.onselect = function() {
+el.input.onselect = function() {
   let text = window.getSelection().toString();
 
-  variantsSelectedWord = text.trim();
+  tmp.variantsSelectedWord = text.trim();
 
   worker.postMessage({ text: text } );
 }
 
-titleArrow.onmousemove = function() {
-  isMouseOnTitleArrow = true;
+el.titleArrow.onmousemove = function() {
+  tmp.isMouseOnTitleArrow = true;
 }
 
-titleArrow.onmouseleave = subtitle.onclick = function() {
-  isMouseOnTitleArrow = false;
+el.titleArrow.onmouseleave = el.subtitle.onclick = function() {
+  tmp.isMouseOnTitleArrow = false;
 }
 
-settingsReplaceWords.onchange = function() {
-  settings.replaceWords = settingsReplaceWords.checked;
+el.settingsReplaceWords.onchange = function() {
+  settings.replaceWords = el.settingsReplaceWords.checked;
 
-  worker.postMessage({ text: input.value, settings: settings } );
+  worker.postMessage({ text: el.input.value, settings: settings } );
 }
 
-settingsCopyOnClick.onchange = function() {
-  settings.copyOnClick = settingsCopyOnClick.checked;
+el.settingsCopyOnClick.onchange = function() {
+  settings.copyOnClick = el.settingsCopyOnClick.checked;
 }
 
 // старт
-requestAnimationFrame(tick);
-
-// funcs
-function tick() {
-  now = Date.now();
-
-  // перевод
-  if ((now - longTextTime) > longTextDelay && longTextTime !== 0) {
-    longTextTime = 0;
-
-    changeTitle();
-    worker.postMessage({ text: input.value, settings: settings } );
-  }
-
-  // заголовок
-  if (isMouseOnTitleArrow) {
-    changeTitle();
-  }
-
-  // подзаголовок
-  if ((now - copiedTime) > copiedTextDelay && copiedTime !== 0) {
-    copiedTime = 0;
-
-    subtitle.textContent = subtitleDefaultText;
-  }
-
-  requestAnimationFrame(tick);
-}
-
-function changeTitle() {
-  var langKeys = Object.keys(LANG);
-  langKeys.splice(langKeys.indexOf('FRANC'), 1);
-
-  var lang = LANG[langKeys[random(langKeys.length)]],
-      words = emojies[lang]['keywords'],
-      wordsKeys = Object.keys(words),
-      word = wordsKeys[random(wordsKeys.length)],
-      _emojies = words[word],
-      emoji = _emojies[random(_emojies.length)];
-
-  if (word.length === 3 && emoji.length === 2) { // отсекаем эмоджи с модификатором пола
-    titleWord.textContent = word.toLowerCase();
-    titleEmoji.textContent = emoji;
-
-    if (isFallbackNeeded) {
-      twemoji.parse(titleEmoji);
-    }
-  } else {
-    changeTitle();
-  }
-}
+requestAnimationFrame(tick.bind(this, worker, settings));

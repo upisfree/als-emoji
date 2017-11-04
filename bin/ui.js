@@ -610,7 +610,10 @@ module.exports = twemoji;
 },{}],3:[function(require,module,exports){
 const CONFIG = {
   LONG_TEXT_LENGTH: 6000, // сколько символов нужно, чтобы текст считался длинным?
-  LONG_TEXT_DELAY: 300 // поставь 0 для мгновенного перевода. задержка, чтобы не было такого на больших текстах: https://i.imgur.com/6ZChXob.gif
+  LONG_TEXT_DELAY: 300, // поставь 0 для мгновенного перевода. задержка, чтобы не было такого на больших текстах: https://i.imgur.com/6ZChXob.gif
+  SUBTITLE_DEFAULT_TEXT: 'перевод с восьми языков в эмоджи',
+  SUBTITLE_COPIED_TEXT: 'скопировано!',
+  SUBTITLE_COPIED_TEXT_DELAY: 2000
 };
 
 module.exports = CONFIG;
@@ -641,134 +644,130 @@ LANG.FRANC = {
 module.exports = LANG;
 },{}],5:[function(require,module,exports){
 var CONFIG = require('./config'),
-    LANG = require('./lang'),
-    random = require('./utils/random'),
-    twemoji = require('twemoji'),
-    isFallbackNeeded = !(require('detect-emoji-support')()),
-    now,
-    longTextTime = Date.now(),
-    longTextDelay = 0,
-    isMouseOnTitleArrow = false,
-    settings = { replaceWords: false, copyOnClick: true },
-    input = document.getElementById('input'),
-    output = document.getElementById('output'),
-    variantsBlock = document.getElementById('variants'),
-    variantsValue = document.getElementById('variants-value'),
-    variantsWord = document.getElementById('variants-word'),
-    variantsSelectedWord,
-    titleWord = document.getElementById('title-word'),
-    titleArrow = document.getElementById('title-arrow'),
-    titleEmoji = document.getElementById('title-emoji'),
-    subtitle = document.getElementById('subtitle'),
-    subtitleDefaultText = 'перевод с восьми языков в эмоджи',
-    subtitleCopiedText = 'скопировано!',
-    copiedTextDelay = 2000,
-    copiedTime = 0,
-    settingsReplaceWords = document.getElementById('settings-replace-words'),
-    settingsCopyOnClick = document.getElementById('settings-copy-on-click'),
-    worker = new Worker('./bin/worker.js');
+    tmp = require('./ui/tmp'),
+    el = require('./ui/elements'),
+    changeTitle = require('./ui/changeTitle'),
+    isFallbackNeeded = require('./utils/isFallbackNeeded');
 
-if (isFallbackNeeded || navigator.userAgent.indexOf('Windows') !== -1) { // все винды пока не показывают флаги стран, чиним
-  twemoji.parse(document.getElementById('about'));
+function tick(worker, settings) {
+  tmp.now = Date.now();
+
+  // перевод
+  if ((tmp.now - tmp.longTextTime) > tmp.longTextDelay && tmp.longTextTime !== 0) {
+    tmp.longTextTime = 0;
+
+    changeTitle(isFallbackNeeded);
+
+    worker.postMessage({ text: el.input.value, settings: settings } );
+  }
+
+  // заголовок
+  if (tmp.isMouseOnTitleArrow) {
+    changeTitle(isFallbackNeeded);
+  }
+
+  // подзаголовок
+  if ((tmp.now - tmp.copiedTime) > CONFIG.SUBTITLE_COPIED_TEXT_DELAY && tmp.copiedTime !== 0) {
+    tmp.copiedTime = 0;
+
+    el.subtitle.textContent = CONFIG.SUBTITLE_DEFAULT_TEXT;
+  }
+
+  requestAnimationFrame(tick.bind(this, worker, settings));
+}
+
+
+module.exports = tick;
+},{"./config":3,"./ui/changeTitle":7,"./ui/elements":8,"./ui/tmp":9,"./utils/isFallbackNeeded":10}],6:[function(require,module,exports){
+var CONFIG = require('./config'),
+    twemoji = require('twemoji'),
+    el = require('./ui/elements.js'),
+    tmp = require('./ui/tmp.js'),
+    tick = require('./tick.js'),
+    worker = new Worker('./bin/worker.js'),
+    isFallbackNeeded = require('./utils/isFallbackNeeded'),
+    isWindows = require('./utils/isWindows'),
+    settings = { replaceWords: false, copyOnClick: true };
+
+if (isFallbackNeeded || isWindows) { // все винды пока не показывают флаги стран, чиним
+  twemoji.parse(el.aboutBlock);
 }
 
 worker.onmessage = function(e) {
-  variants.style.opacity = 0;
+  el.variants.style.opacity = 0;
 
   if (e.data.text) {
-    output.innerHTML = e.data.text + '\n\n'; // \n\n — это чёртова гениальная магия, которая чинит textarea и не даёт тексту пропасть внутри окна    
-    input.style.height = output.getBoundingClientRect().height + 'px';
+    el.output.innerHTML = e.data.text + '\n\n'; // \n\n — это чёртова гениальная магия, которая чинит textarea и не даёт тексту пропасть внутри окна    
+    el.input.style.height = el.output.getBoundingClientRect().height + 'px';
   } else if (e.data.variants) {
-    variants.style.opacity = 1;
-    variantsWord.textContent = variantsSelectedWord;
-    variantsValue.textContent = e.data.variants;
+    el.variants.style.opacity = 1;
+    el.variantsWord.textContent = tmp.variantsSelectedWord;
+    el.variantsValue.textContent = e.data.variants;
   }
 
   if (isFallbackNeeded) {
-    twemoji.parse(output);
-    twemoji.parse(variants);
+    twemoji.parse(el.output);
+    twemoji.parse(el.variants);
   }
 }
 
-input.oninput = function() {
-  longTextTime = Date.now();
+el.input.oninput = function() {
+  tmp.longTextTime = Date.now();
 
   // мгновенный перевод для коротких текстов и задержка для длинных (чтобы не было такого: https://i.imgur.com/6ZChXob.gif)
-  if (input.value.length >= CONFIG.LONG_TEXT_LENGTH) {
-    longTextDelay = CONFIG.LONG_TEXT_DELAY;
+  if (el.input.value.length >= CONFIG.LONG_TEXT_LENGTH) {
+    tmp.longTextDelay = CONFIG.LONG_TEXT_DELAY;
   } else {
-    longTextDelay = 0;
+    tmp.longTextDelay = 0;
   }
 }
 
-output.onclick = function() {
-  window.getSelection().selectAllChildren(output);
+el.output.onclick = function() {
+  window.getSelection().selectAllChildren(el.output);
 
   if (settings.copyOnClick) {
     document.execCommand('copy');
 
-    copiedTime = Date.now();
-    subtitle.textContent = subtitleCopiedText;
+    tmp.copiedTime = Date.now();
+    el.subtitle.textContent = CONFIG.SUBTITLE_COPIED_TEXT;
   }
 }
 
-input.onselect = function() {
+el.input.onselect = function() {
   let text = window.getSelection().toString();
 
-  variantsSelectedWord = text.trim();
+  tmp.variantsSelectedWord = text.trim();
 
   worker.postMessage({ text: text } );
 }
 
-titleArrow.onmousemove = function() {
-  isMouseOnTitleArrow = true;
+el.titleArrow.onmousemove = function() {
+  tmp.isMouseOnTitleArrow = true;
 }
 
-titleArrow.onmouseleave = subtitle.onclick = function() {
-  isMouseOnTitleArrow = false;
+el.titleArrow.onmouseleave = el.subtitle.onclick = function() {
+  tmp.isMouseOnTitleArrow = false;
 }
 
-settingsReplaceWords.onchange = function() {
-  settings.replaceWords = settingsReplaceWords.checked;
+el.settingsReplaceWords.onchange = function() {
+  settings.replaceWords = el.settingsReplaceWords.checked;
 
-  worker.postMessage({ text: input.value, settings: settings } );
+  worker.postMessage({ text: el.input.value, settings: settings } );
 }
 
-settingsCopyOnClick.onchange = function() {
-  settings.copyOnClick = settingsCopyOnClick.checked;
+el.settingsCopyOnClick.onchange = function() {
+  settings.copyOnClick = el.settingsCopyOnClick.checked;
 }
 
 // старт
-requestAnimationFrame(tick);
+requestAnimationFrame(tick.bind(this, worker, settings));
+},{"./config":3,"./tick.js":5,"./ui/elements.js":8,"./ui/tmp.js":9,"./utils/isFallbackNeeded":10,"./utils/isWindows":11,"twemoji":2}],7:[function(require,module,exports){
+var LANG = require('../lang'),
+    twemoji = require('twemoji'),
+    random = require('../utils/random'),
+    el = require('./elements.js');
 
-// funcs
-function tick() {
-  now = Date.now();
-
-  // перевод
-  if ((now - longTextTime) > longTextDelay && longTextTime !== 0) {
-    longTextTime = 0;
-
-    changeTitle();
-    worker.postMessage({ text: input.value, settings: settings } );
-  }
-
-  // заголовок
-  if (isMouseOnTitleArrow) {
-    changeTitle();
-  }
-
-  // подзаголовок
-  if ((now - copiedTime) > copiedTextDelay && copiedTime !== 0) {
-    copiedTime = 0;
-
-    subtitle.textContent = subtitleDefaultText;
-  }
-
-  requestAnimationFrame(tick);
-}
-
-function changeTitle() {
+function changeTitle(isFallbackNeeded) {
   var langKeys = Object.keys(LANG);
   langKeys.splice(langKeys.indexOf('FRANC'), 1);
 
@@ -780,19 +779,49 @@ function changeTitle() {
       emoji = _emojies[random(_emojies.length)];
 
   if (word.length === 3 && emoji.length === 2) { // отсекаем эмоджи с модификатором пола
-    titleWord.textContent = word.toLowerCase();
-    titleEmoji.textContent = emoji;
+    el.titleWord.textContent = word.toLowerCase();
+    el.titleEmoji.textContent = emoji;
 
     if (isFallbackNeeded) {
-      twemoji.parse(titleEmoji);
+      twemoji.parse(el.titleEmoji);
     }
   } else {
-    changeTitle();
+    changeTitle(isFallbackNeeded);
   }
 }
 
-},{"./config":3,"./lang":4,"./utils/random":6,"detect-emoji-support":1,"twemoji":2}],6:[function(require,module,exports){
+module.exports = changeTitle;
+},{"../lang":4,"../utils/random":12,"./elements.js":8,"twemoji":2}],8:[function(require,module,exports){
+module.exports = {
+  input: document.getElementById('input'),
+  output: document.getElementById('output'),
+  variants: document.getElementById('variants'),
+  variantsValue: document.getElementById('variants-value'),
+  variantsWord: document.getElementById('variants-word'),
+  titleWord: document.getElementById('title-word'),
+  titleArrow: document.getElementById('title-arrow'),
+  titleEmoji: document.getElementById('title-emoji'),
+  subtitle: document.getElementById('subtitle'),
+  aboutBlock: document.getElementById('about'),
+  settingsReplaceWords: document.getElementById('settings-replace-words'),
+  settingsCopyOnClick: document.getElementById('settings-copy-on-click')
+}
+},{}],9:[function(require,module,exports){
+// разные временные переменные для интерфейса
+module.exports = {
+  longTextTime: Date.now(),
+  longTextDelay: 0,
+  isMouseOnTitleArrow: false,
+  variantsSelectedWord: '',
+  copiedTime: 0,
+  now: 0
+}
+},{}],10:[function(require,module,exports){
+module.exports = !(require('detect-emoji-support')());
+},{"detect-emoji-support":1}],11:[function(require,module,exports){
+module.exports = navigator.userAgent.indexOf('Windows') !== -1;
+},{}],12:[function(require,module,exports){
 module.exports = function(max) {
   return Math.floor(Math.random() * max);
 }
-},{}]},{},[5]);
+},{}]},{},[6]);
