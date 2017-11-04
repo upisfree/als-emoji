@@ -17,8 +17,8 @@
   "homepage": "https://github.com/upisfree/als-emoji#readme",
   "dependencies": {
     "az": "^0.2.3",
+    "detect-emoji-support": "^0.1.4",
     "franc-min": "^3.1.1",
-    "if-emoji": "^0.1.0",
     "stemmer": "^1.0.1",
     "twemoji": "^2.5.0"
   },

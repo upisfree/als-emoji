@@ -1,11 +1,16 @@
 // рефакторинг
+// — фикс сафари и фолбэка (или забить хуй)
+// — рефакторинг
+// — гифки
+// — описание проекта и техчасть
+// — свои главные проекты
+// — минирезюме
 
 var CONFIG = require('./config'),
     LANG = require('./lang'),
     random = require('./utils/random'),
-    ifEmoji = require('if-emoji'),
+    isFallbackNeeded = !(require('detect-emoji-support')()),
     now,
-    isFallbackNeeded = !(ifEmoji('😀')),
     longTextTime = Date.now(),
     longTextDelay = 0,
     isMouseOnTitleArrow = false,

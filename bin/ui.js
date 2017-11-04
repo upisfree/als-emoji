@@ -1,48 +1,35 @@
 (function e(t,n,r){function s(o,u){if(!n[o]){if(!t[o]){var a=typeof require=="function"&&require;if(!u&&a)return a(o,!0);if(i)return i(o,!0);var f=new Error("Cannot find module '"+o+"'");throw f.code="MODULE_NOT_FOUND",f}var l=n[o]={exports:{}};t[o][0].call(l.exports,function(e){var n=t[o][1][e];return s(n?n:e)},l,l.exports,e,t,n,r)}return n[o].exports}var i=typeof require=="function"&&require;for(var o=0;o<r.length;o++)s(r[o]);return s})({1:[function(require,module,exports){
-(function (global, factory) {
-  typeof exports === 'object' && typeof module !== 'undefined' ? module.exports = factory() :
-  typeof define === 'function' && define.amd ? define(factory) :
-  (global.ifEmoji = factory());
-}(this, (function () { 'use strict';
+'use strict';
 
-var _ArrayLikeToString = function _ArrayLikeToString(arg) {
-  return Array.prototype.toString.call(arg);
+function detect () {
+    if (detect.status === null) {
+        if (!window) {
+            return false;
+        }
+
+        var pixelRatio = window.devicePixelRatio || 1;
+        var offset = 12 * pixelRatio;
+        var node = window.document.createElement('canvas');
+
+        var ctx = node.getContext('2d');
+        if (!ctx) {
+            return false;
+        }
+
+        ctx.fillStyle = '#f00';
+        ctx.textBaseline = 'top';
+        ctx.font = '32px Arial';
+        ctx.fillText('\ud83d\udc28', 0, 0); // U+1F428 KOALA
+
+        detect.status = ctx.getImageData(offset, offset, 1, 1).data[0] !== 0;
+    }
+
+    return detect.status;
 };
 
-var getTextFeature = function getTextFeature(text, color) {
-  try {
-    var canvas = document.createElement('canvas');
-    canvas.width = 1;
-    canvas.height = 1;
+detect.status = null;
 
-    var ctx = canvas.getContext('2d');
-    ctx.textBaseline = 'top';
-    ctx.font = '100px -no-font-family-here-';
-    ctx.fillStyle = color;
-    ctx.scale(0.01, 0.01);
-    ctx.fillText(text, 0, 0);
-
-    return ctx.getImageData(0, 0, 1, 1).data;
-  } catch (e) {
-    return false;
-  }
-};
-
-var compareFeatures = function compareFeatures(feature1, feature2) {
-  var feature1Str = _ArrayLikeToString(feature1);
-  var feature2Str = _ArrayLikeToString(feature2);
-  return feature1Str === feature2Str && feature1Str !== '0,0,0,0';
-};
-
-var index = function (text) {
-  var feature1 = getTextFeature(text, '#000');
-  var feature2 = getTextFeature(text, '#fff');
-  return feature1 && feature2 && compareFeatures(feature1, feature2);
-};
-
-return index;
-
-})));
+module.exports = detect;
 
 },{}],2:[function(require,module,exports){
 (function (global){
@@ -654,13 +641,18 @@ LANG.FRANC = {
 module.exports = LANG;
 },{}],5:[function(require,module,exports){
 // рефакторинг
+// — фикс сафари и фолбэка (или забить хуй)
+// — рефакторинг
+// — гифки
+// — описание проекта и техчасть
+// — свои главные проекты
+// — минирезюме
 
 var CONFIG = require('./config'),
     LANG = require('./lang'),
     random = require('./utils/random'),
-    ifEmoji = require('if-emoji'),
+    isFallbackNeeded = !(require('detect-emoji-support')()),
     now,
-    isFallbackNeeded = !(ifEmoji('😀')),
     longTextTime = Date.now(),
     longTextDelay = 0,
     isMouseOnTitleArrow = false,
@@ -808,7 +800,7 @@ function changeTitle() {
   }
 }
 
-},{"./config":3,"./lang":4,"./utils/random":6,"if-emoji":1,"twemoji":2}],6:[function(require,module,exports){
+},{"./config":3,"./lang":4,"./utils/random":6,"detect-emoji-support":1,"twemoji":2}],6:[function(require,module,exports){
 module.exports = function(max) {
   return Math.floor(Math.random() * max);
 }
