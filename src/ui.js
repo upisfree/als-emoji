@@ -16,7 +16,7 @@ worker.onmessage = function(e) {
   el.variants.style.opacity = 0;
 
   if (e.data.text) {
-    el.output.innerHTML = e.data.text + '\n\n'; // \n\n — это чёртова гениальная магия, которая чинит textarea и не даёт тексту пропасть внутри окна    
+    el.output.textContent = e.data.text + '\n\n'; // \n\n — это чёртова гениальная магия, которая чинит textarea и не даёт тексту пропасть внутри окна    
     el.input.style.height = el.output.getBoundingClientRect().height + 'px';
   } else if (e.data.variants) {
     el.variants.style.opacity = 1;
