@@ -6,7 +6,7 @@ var CONFIG = require('./config'),
     worker = new Worker('./bin/worker.js'),
     isFallbackNeeded = require('./utils/isFallbackNeeded'),
     isWindows = require('./utils/isWindows'),
-    settings = { replaceWords: false, copyOnClick: true };
+    settings = { replaceWords: false, selectOnClick: true };
 
 if (isFallbackNeeded || isWindows) { // все винды пока не показывают флаги стран, чиним
   twemoji.parse(el.aboutBlock);
@@ -42,14 +42,14 @@ el.input.oninput = function() {
 }
 
 el.output.onclick = function() {
-  window.getSelection().selectAllChildren(el.output);
-
-  if (settings.copyOnClick) {
-    document.execCommand('copy');
-
-    tmp.copiedTime = Date.now();
-    el.subtitle.textContent = CONFIG.SUBTITLE_COPIED_TEXT;
+  if (settings.selectOnClick) {
+    window.getSelection().selectAllChildren(el.output);
   }
+
+  document.execCommand('copy');
+
+  tmp.copiedTime = Date.now();
+  el.subtitle.textContent = CONFIG.SUBTITLE_COPIED_TEXT;
 }
 
 el.input.onselect = function() {
@@ -74,8 +74,8 @@ el.settingsReplaceWords.onchange = function() {
   worker.postMessage({ text: el.input.value, settings: settings } );
 }
 
-el.settingsCopyOnClick.onchange = function() {
-  settings.copyOnClick = el.settingsCopyOnClick.checked;
+el.settingsSelectOnClick.onchange = function() {
+  settings.selectOnClick = el.settingsSelectOnClick.checked;
 }
 
 // старт

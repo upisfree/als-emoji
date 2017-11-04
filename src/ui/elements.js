@@ -10,5 +10,5 @@ module.exports = {
   subtitle: document.getElementById('subtitle'),
   aboutBlock: document.getElementById('about'),
   settingsReplaceWords: document.getElementById('settings-replace-words'),
-  settingsCopyOnClick: document.getElementById('settings-copy-on-click')
+  settingsSelectOnClick: document.getElementById('settings-select-on-click')
 }
