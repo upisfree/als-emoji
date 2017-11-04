@@ -3329,40 +3329,66 @@ var Az = require('./az')
     languageDetectOptions = { whitelist: Object.keys(LANG.FRANC), minLength: 2 };
 
 module.exports = function(text, settings) {
-  var tokens = tokenization(text),
-      word,
+  var word,
       lang;
 
-  for (let a = 0; a < tokens.length; a++) {
-    if (tokens[a].type === Az.Tokens.WORD) {
-      word = tokens[a].toString();
+  if (settings) { // текст
+    var tokens = tokenization(text);
+
+    for (let a = 0; a < tokens.length; a++) {
+      if (tokens[a].type === Az.Tokens.WORD) {
+        word = tokens[a].toString();
+        lang = LANG.FRANC[franc(word, languageDetectOptions)];
+
+        if (lang) {
+          word = normalizeWord(word, lang);
+
+          if (word) {
+            let emoji = wordToEmoji(word, lang, false);
+
+            if (emoji) {
+              if (settings.replaceWords) {
+                tokens[a] = emoji;
+              } else {
+                tokens[a] += ' ' + emoji;
+              }
+            }
+          }
+        }
+      }
+    }
+
+    return tokens.join('');
+  } else { // одно слово
+    word = text.trim();
+
+    // действительно одно слово?
+    if (word.indexOf(' ') === -1) {
       lang = LANG.FRANC[franc(word, languageDetectOptions)];
 
       if (lang) {
         word = normalizeWord(word, lang);
 
         if (word) {
-          let emoji = wordToEmoji(word, lang);
+          let emojies = wordToEmoji(word, lang, true);
 
-          if (emoji) {
-            if (settings.replaceWords) {
-              tokens[a] = emoji;
+          if (emojies) {
+            if (typeof emojies === 'string') {
+              return emojies;
             } else {
-              tokens[a] += ' ' + emoji;              
+              return emojies.join(' ');
             }
           }
         }
       }
     }
   }
-
-  return tokens.join('');
 }
 },{"../lang":11,"./az":12,"./normalizeWord":13,"./tokenization":14,"./wordToEmoji":16,"franc-min":6}],16:[function(require,module,exports){
 var random = require('../utils/random'),
     LANG = require('../lang');
 
-module.exports = function(word, lang) {
+module.exports = function(word, lang, variants) {
   if (lang !== LANG.DE) { // в немецком все существительные пишутся с большой буквы
     word = word.toLowerCase();    
   }
@@ -3374,7 +3400,11 @@ module.exports = function(word, lang) {
   if (emojies[lang]['keywords'][word]) {
     let keywords = emojies[lang]['keywords'][word];
 
-    return keywords[random(keywords.length)];
+    if (variants) {
+      return keywords;
+    } else {
+      return keywords[random(keywords.length)];
+    }
   }
 }
 },{"../lang":11,"../utils/random":17}],17:[function(require,module,exports){
@@ -3383,14 +3413,18 @@ module.exports = function(max) {
 }
 },{}],18:[function(require,module,exports){
 var Az = require('./translator/az'),
-    translateText = require('./translator/translateText'),
-    isInit = false;
+    translateText = require('./translator/translateText');
 
-importScripts('emojies.js'); // now we've got global emojies object
+importScripts('emojies.js'); // получаем глобальную переменную со всеми эмоджами
 
 Az.Morph.init('../dicts/ru');
 
 onmessage = function(e) {
-  postMessage(translateText(e.data.text, e.data.settings));    
+  if (e.data.settings) {
+    postMessage({ text: translateText(e.data.text, e.data.settings) });
+  }
+  else {
+    postMessage({ variants: translateText(e.data.text) });
+  }
 }
 },{"./translator/az":12,"./translator/translateText":15}]},{},[18]);

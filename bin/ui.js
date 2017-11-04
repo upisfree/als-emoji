@@ -653,7 +653,6 @@ LANG.FRANC = {
 
 module.exports = LANG;
 },{}],5:[function(require,module,exports){
-// на старых виндах fallback (это просто): https://github.com/twitter/twemoji
 // рефакторинг
 
 var CONFIG = require('./config'),
@@ -668,6 +667,10 @@ var CONFIG = require('./config'),
     settings = { replaceWords: false, copyOnClick: true },
     input = document.getElementById('input'),
     output = document.getElementById('output'),
+    variantsBlock = document.getElementById('variants'),
+    variantsValue = document.getElementById('variants-value'),
+    variantsWord = document.getElementById('variants-word'),
+    variantsSelectedWord,
     titleWord = document.getElementById('title-word'),
     titleArrow = document.getElementById('title-arrow'),
     titleEmoji = document.getElementById('title-emoji'),
@@ -687,12 +690,20 @@ if (isFallbackNeeded) {
 }
 
 worker.onmessage = function(e) {
-  output.innerHTML = e.data + '\n\n'; // \n\n — это чёртова гениальная магия, которая чинит textarea и не даёт тексту пропасть внутри окна
+  variants.style.opacity = 0;
 
-  input.style.height = output.getBoundingClientRect().height + 'px';
+  if (e.data.text) {
+    output.innerHTML = e.data.text + '\n\n'; // \n\n — это чёртова гениальная магия, которая чинит textarea и не даёт тексту пропасть внутри окна    
+    input.style.height = output.getBoundingClientRect().height + 'px';
+  } else if (e.data.variants) {
+    variants.style.opacity = 1;
+    variantsWord.textContent = variantsSelectedWord;
+    variantsValue.textContent = e.data.variants;
+  }
 
   if (isFallbackNeeded) {
     twemoji.parse(output);
+    twemoji.parse(variants);
   }
 }
 
@@ -707,8 +718,6 @@ input.oninput = input.onchange = function() {
   }
 }
 
-// window.addEventListener 'touchend', (e) ->
-
 output.onclick = function() {
   window.getSelection().selectAllChildren(output);
 
@@ -720,11 +729,19 @@ output.onclick = function() {
   }
 }
 
+input.onselect = function() {
+  let text = window.getSelection().toString();
+
+  variantsSelectedWord = text.trim();
+
+  worker.postMessage({ text: text } );
+}
+
 titleArrow.onmousemove = function() {
   isMouseOnTitleArrow = true;
 }
 
-titleArrow.onmouseleave = function() {
+titleArrow.onmouseleave = subtitle.onclick = function() {
   isMouseOnTitleArrow = false;
 }
 

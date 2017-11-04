@@ -98,12 +98,33 @@ body {
 }
 
 #settings, #about {
-  clear: both;
   margin-top: 40px;
 }
 
-#settings h3, #about h3 {
+#variants h3, #settings h3, #about h3 {
   margin: 0;
+  font-size: 18pt;
+}
+
+#variants {
+  max-width: 40%;
+  float: right;
+  text-align: right;
+  opacity: 0;
+  transition: opacity .2s;
+}
+
+#variants h3 {
+  font-size: 14pt;
+  font-weight: 300;
+}
+
+#variants-word {
+  font-weight: bold;
+}
+
+#variants-value {
+  margin-top: 6px;
   font-size: 18pt;
 }
 
@@ -130,7 +151,7 @@ body {
        and (max-device-width: 736px) { 
   #input, #output {
     width: 100%;
-    min-height: 250px; // под мобильники же
+    min-height: 250px; /* под мобильники же */
     clear: both;
   }
 
@@ -146,8 +167,19 @@ body {
     font-size: 23pt;
   }
 
+  #title-arrow {
+    width: 23pt;
+    vertical-align: -3pt;
+  }
+
   #subtitle {
     font-size: 10pt;
     margin-top: -16px;
+  }
+
+  #variants {
+    max-width: 100%;
+    float: left;
+    text-align: left; 
   }
 }

@@ -1,11 +1,15 @@
 var Az = require('./translator/az'),
-    translateText = require('./translator/translateText'),
-    isInit = false;
+    translateText = require('./translator/translateText');
 
-importScripts('emojies.js'); // now we've got global emojies object
+importScripts('emojies.js'); // получаем глобальную переменную со всеми эмоджами
 
 Az.Morph.init('../dicts/ru');
 
 onmessage = function(e) {
-  postMessage(translateText(e.data.text, e.data.settings));    
+  if (e.data.settings) {
+    postMessage({ text: translateText(e.data.text, e.data.settings) });
+  }
+  else {
+    postMessage({ variants: translateText(e.data.text) });
+  }
 }
