@@ -658,6 +658,8 @@ function tick(worker, settings) {
 
     changeTitle(isFallbackNeeded);
 
+    localStorage.setItem('lastText', el.input.value);
+
     worker.postMessage({ text: el.input.value, settings: settings } );
   }
 
@@ -687,7 +689,7 @@ var CONFIG = require('./config'),
     worker = new Worker('./bin/worker.js'),
     isFallbackNeeded = require('./utils/isFallbackNeeded'),
     isWindows = require('./utils/isWindows'),
-    settings = { replaceWords: false, selectOnClick: true };
+    settings = JSON.parse(localStorage.getItem('settings')) || { replaceWords: false, selectOnClick: true };
 
 if (isFallbackNeeded || isWindows) { // все винды пока не показывают флаги стран, чиним
   twemoji.parse(el.aboutBlock);
@@ -697,7 +699,7 @@ worker.onmessage = function(e) {
   el.variants.style.opacity = 0;
 
   if (e.data.text) {
-    el.output.textContent = e.data.text + '\n\n'; // \n\n — это чёртова гениальная магия, которая чинит textarea и не даёт тексту пропасть внутри окна    
+    el.output.textContent = e.data.text + '\n\n'; // \n\n — это чёртова гениальная магия, которая чинит textarea и не даёт тексту пропасть внутри окна
     el.input.style.height = el.output.getBoundingClientRect().height + 'px';
   } else if (e.data.variants) {
     el.variants.style.opacity = 1;
@@ -738,7 +740,7 @@ el.input.onselect = function() {
 
   tmp.variantsSelectedWord = text.trim();
 
-  worker.postMessage({ text: text } );
+  worker.postMessage({ text: tmp.variantsSelectedWord } );
 }
 
 el.titleArrow.onmousemove = function() {
@@ -752,15 +754,26 @@ el.titleArrow.onmouseleave = el.subtitle.onclick = function() {
 el.settingsReplaceWords.onchange = function() {
   settings.replaceWords = el.settingsReplaceWords.checked;
 
+  localStorage.setItem('settings', JSON.stringify(settings));
+
   worker.postMessage({ text: el.input.value, settings: settings } );
 }
 
 el.settingsSelectOnClick.onchange = function() {
   settings.selectOnClick = el.settingsSelectOnClick.checked;
+
+  localStorage.setItem('settings', JSON.stringify(settings));
 }
 
 // старт
 requestAnimationFrame(tick.bind(this, worker, settings));
+
+el.settingsReplaceWords.checked = settings.replaceWords;
+el.settingsSelectOnClick.checked = settings.selectOnClick;
+
+if (tmp.lastText) {
+  el.input.textContent = tmp.lastText;
+}
 },{"./config":3,"./tick.js":5,"./ui/elements.js":8,"./ui/tmp.js":9,"./utils/isFallbackNeeded":10,"./utils/isWindows":11,"twemoji":2}],7:[function(require,module,exports){
 var LANG = require('../lang'),
     twemoji = require('twemoji'),
@@ -813,6 +826,7 @@ module.exports = {
   longTextDelay: 0,
   isMouseOnTitleArrow: false,
   variantsSelectedWord: '',
+  lastText: localStorage.getItem('lastText'),
   copiedTime: 0,
   now: 0
 }

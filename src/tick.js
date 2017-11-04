@@ -13,6 +13,8 @@ function tick(worker, settings) {
 
     changeTitle(isFallbackNeeded);
 
+    localStorage.setItem('lastText', el.input.value);
+
     worker.postMessage({ text: el.input.value, settings: settings } );
   }
 

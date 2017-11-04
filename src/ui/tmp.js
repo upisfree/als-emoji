@@ -4,6 +4,7 @@ module.exports = {
   longTextDelay: 0,
   isMouseOnTitleArrow: false,
   variantsSelectedWord: '',
+  lastText: localStorage.getItem('lastText'),
   copiedTime: 0,
   now: 0
 }
