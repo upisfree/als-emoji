@@ -1,14 +1,7 @@
-// рефакторинг
-// — фикс сафари и фолбэка (или забить хуй)
-// — рефакторинг
-// — гифки
-// — описание проекта и техчасть
-// — свои главные проекты
-// — минирезюме
-
 var CONFIG = require('./config'),
     LANG = require('./lang'),
     random = require('./utils/random'),
+    twemoji = require('twemoji'),
     isFallbackNeeded = !(require('detect-emoji-support')()),
     now,
     longTextTime = Date.now(),
@@ -33,9 +26,7 @@ var CONFIG = require('./config'),
     settingsCopyOnClick = document.getElementById('settings-copy-on-click'),
     worker = new Worker('./bin/worker.js');
 
-if (isFallbackNeeded) {
-  var twemoji = require('twemoji');
-
+if (isFallbackNeeded || navigator.userAgent.indexOf('Windows') !== -1) { // все винды пока не показывают флаги стран, чиним
   twemoji.parse(document.getElementById('about'));
 }
 
@@ -57,7 +48,7 @@ worker.onmessage = function(e) {
   }
 }
 
-input.oninput = input.onchange = function() {
+input.oninput = function() {
   longTextTime = Date.now();
 
   // мгновенный перевод для коротких текстов и задержка для длинных (чтобы не было такого: https://i.imgur.com/6ZChXob.gif)
