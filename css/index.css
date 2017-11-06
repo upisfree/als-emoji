@@ -5,6 +5,18 @@ body {
   font-family: 'Fira Sans', sans-serif;
 }
 
+a {
+  color: #0089ff;
+}
+
+a:hover {
+  color: #3da5ff;
+}
+
+a:active {
+  color: #0065bb;
+}
+
 /* хак для файрфокса, который чинит min-height у #input, #output */
 @-moz-document url-prefix() {
   body {
@@ -58,6 +70,17 @@ body {
   float: right;
 }
 
+#variants-tip {
+  display: block;
+  float: left;
+  margin-top: -34px;
+  /* margin-left: 11px; */
+  font-size: 12pt;
+  font-style: italic;
+  font-weight: lighter;
+  color: #a2a2a2;
+}
+
 #title {
   cursor: default;
   font-size: 32pt;
@@ -97,10 +120,6 @@ body {
   text-align: center;
 }
 
-#settings, #about {
-  margin-top: 40px;
-}
-
 #variants h3, #settings h3, #about h3 {
   margin: 0;
   font-size: 18pt;
@@ -130,6 +149,11 @@ body {
 
 #variants-value .emoji {
   width: 20pt;
+}
+
+#settings, #about {
+  margin-top: 40px;
+  clear: both;
 }
 
 #settings p {
@@ -188,6 +212,11 @@ body {
   #variants {
     max-width: 100%;
     float: left;
-    text-align: left; 
+    margin-top: 22px;
+    text-align: left;
+  }
+
+  #variants-tip {
+    font-size: 10pt;
   }
 }

@@ -4,7 +4,8 @@ var gulp = require('gulp'),
     buffer = require('vinyl-buffer'),
     uglify = require('gulp-uglify');
     insert = require('gulp-insert'),
-    rename = require('gulp-rename');
+    rename = require('gulp-rename'),
+    gutil = require('gulp-util');
 
 // TODO: refactor this :/
 gulp.task('develop-ui', function()
@@ -41,6 +42,7 @@ gulp.task('min-ui', function() // release
   .pipe(source('ui.js'))
   .pipe(buffer())
   .pipe(uglify())
+  .on('error', function (err) { gutil.log(gutil.colors.red('[Error]'), err.toString()); })
   .pipe(gulp.dest('./bin'));
 });
 
@@ -54,6 +56,7 @@ gulp.task('min-worker', function() // release
   .pipe(source('worker.js'))
   .pipe(buffer())
   .pipe(uglify())
+  .on('error', function (err) { gutil.log(gutil.colors.red('[Error]'), err.toString()); })
   .pipe(gulp.dest('./bin'));
 });
 
