@@ -3439,7 +3439,9 @@ var Az = require('./translator/az'),
 
 importScripts('emojies.js'); // получаем глобальную переменную со всеми эмоджами
 
-Az.Morph.init('../dicts/ru');
+Az.Morph.init('../dicts/ru', function () {
+  postMessage({ azLoaded: true });
+});
 
 onmessage = function onmessage(e) {
   if (e.data.settings) {

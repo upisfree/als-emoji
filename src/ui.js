@@ -22,6 +22,10 @@ worker.onmessage = function(e) {
     el.variants.style.opacity = 1;
     el.variantsWord.textContent = tmp.variantsSelectedWord;
     el.variantsValue.textContent = e.data.variants;
+  } else if (e.data.azLoaded) {
+    worker.postMessage({ text: el.input.value, settings: settings } );
+
+    el.subtitle.textContent = CONFIG.SUBTITLE_DEFAULT_TEXT;
   }
 
   if (isFallbackNeeded) {
