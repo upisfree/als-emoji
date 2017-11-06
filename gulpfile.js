@@ -1,11 +1,11 @@
 var gulp = require('gulp'),
     browserify = require('browserify'),
+    babelify = require('babelify'),
     source = require('vinyl-source-stream'),
     buffer = require('vinyl-buffer'),
     uglify = require('gulp-uglify');
     insert = require('gulp-insert'),
-    rename = require('gulp-rename'),
-    gutil = require('gulp-util');
+    rename = require('gulp-rename');
 
 // TODO: refactor this :/
 gulp.task('develop-ui', function()
@@ -26,6 +26,7 @@ gulp.task('develop-worker', function()
   {
     entries: ['./src/worker.js']
   })
+  .transform('babelify', { presets: ['es2015'] })
   .bundle()
   .pipe(source('worker.js'))
   .pipe(buffer())
@@ -38,11 +39,12 @@ gulp.task('min-ui', function() // release
   {
     entries: ['./src/ui.js']
   })
+  .transform('babelify', { presets: ['es2015'] })
   .bundle()
   .pipe(source('ui.js'))
   .pipe(buffer())
+  .pipe(babel({ presets: ['babili']} ))
   .pipe(uglify())
-  .on('error', function (err) { gutil.log(gutil.colors.red('[Error]'), err.toString()); })
   .pipe(gulp.dest('./bin'));
 });
 
@@ -55,8 +57,8 @@ gulp.task('min-worker', function() // release
   .bundle()
   .pipe(source('worker.js'))
   .pipe(buffer())
+  .pipe(babel({ presets: ['babili']} ))
   .pipe(uglify())
-  .on('error', function (err) { gutil.log(gutil.colors.red('[Error]'), err.toString()); })
   .pipe(gulp.dest('./bin'));
 });
 
