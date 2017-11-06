@@ -28,7 +28,7 @@ module.exports = function(text, settings) {
               if (settings.replaceWords) {
                 tokens[a] = emoji;
               } else {
-                tokens[a] += ' ' + emoji;
+                tokens[a] += ' ' + emoji + ' ';
               }
             }
           }

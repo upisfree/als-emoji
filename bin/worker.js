@@ -2473,7 +2473,7 @@
   return Tokens;
 }));
 
-}).call(this,"/node_modules\\az\\dist")
+}).call(this,"/node_modules/az/dist")
 },{"fs":2}],2:[function(require,module,exports){
 
 },{}],3:[function(require,module,exports){
@@ -3361,7 +3361,7 @@ module.exports = function (text, settings) {
               if (settings.replaceWords) {
                 tokens[a] = emoji;
               } else {
-                tokens[a] += ' ' + emoji;
+                tokens[a] += ' ' + emoji + ' ';
               }
             }
           }
