@@ -3359,7 +3359,7 @@ module.exports = function (text, settings) {
 
             if (emoji) {
               if (settings.replaceWords) {
-                tokens[a] = emoji;
+                tokens[a] = emoji + ' ';
               } else {
                 tokens[a] += ' ' + emoji + ' ';
               }
