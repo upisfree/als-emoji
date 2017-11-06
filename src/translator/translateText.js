@@ -1,4 +1,4 @@
-var Az = require('./az')
+var Az = require('./az'),
     franc = require('franc-min'),
     LANG = require('../lang'),
     tokenization = require('./tokenization'),

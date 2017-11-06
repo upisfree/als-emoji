@@ -736,7 +736,8 @@ el.output.onclick = function() {
 }
 
 el.input.onselect = function() {
-  let text = window.getSelection().toString();
+  let i = el.input,
+      text = i.value.substring(i.selectionStart, i.selectionEnd);
 
   tmp.variantsSelectedWord = text.trim();
 

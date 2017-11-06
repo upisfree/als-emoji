@@ -3230,7 +3230,9 @@ exports.right = function(str){
 };
 
 },{}],11:[function(require,module,exports){
-const LANG = {
+'use strict';
+
+var LANG = {
   DE: 'de', // German 🇩🇪
   EN: 'en', // English 🇬🇧
   ES: 'es', // Spanish 🇪🇸
@@ -3238,7 +3240,7 @@ const LANG = {
   IT: 'it', // Italian 🇮🇹
   PT: 'pt', // Portuguese 🇵🇹
   RU: 'ru', // Russian 🇷🇺
-  TR: 'tr'  // Turkish 🇹🇷
+  TR: 'tr' // Turkish 🇹🇷
 };
 
 // franc (библиотека, что определяет язык) использует ISO 639-2 вместо ISO 639-1, которым пользуется Юникод, поэтому нам нужен преобразователь
@@ -3254,11 +3256,14 @@ LANG.FRANC = {
 };
 
 module.exports = LANG;
+
 },{}],12:[function(require,module,exports){
+'use strict';
+
 var Az = require('az');
 
 // чиним загрузку словарей Az (токенизатор и стеммер для русского)
-Az.load = function(url, responseType, callback) {
+Az.load = function (url, responseType, callback) {
   var xhr = new XMLHttpRequest();
   xhr.open('GET', url, true);
   xhr.responseType = responseType;
@@ -3270,35 +3275,35 @@ Az.load = function(url, responseType, callback) {
   };
 
   xhr.send(null);
-}
+};
 
-module.exports = Az
+module.exports = Az;
+
 },{"az":1}],13:[function(require,module,exports){
+'use strict';
+
 var Az = require('./az'),
     stemmer = require('stemmer'),
     LANG = require('../lang');
 
-module.exports = function(word, lang) {
+module.exports = function (word, lang) {
   switch (lang) {
     case LANG.RU:
       // с удовольствием бы не использовал try, если бы в Az.Morph был бы флаг init
       // но если текст уже приходит, а словари ещё не загрузились, переводим пока без приведения в начальную форму
-      try { 
+      try {
         word = Az.Morph(word)[0];
 
         // случается, что предсказыватель ничего не предсказывает
         if (word) {
           // приводим в начальную форму только существительные, глаголы и прилагательные
-          if (word.tag.POS === 'NOUN' ||
-              word.tag.POS === 'INFN' ||
-              word.tag.POS === 'ADJF') {
+          if (word.tag.POS === 'NOUN' || word.tag.POS === 'INFN' || word.tag.POS === 'ADJF') {
             word = word.normalize().word;
           } else {
             word = null;
           }
         }
-      }
-      catch (e) { }
+      } catch (e) {}
 
       break;
     case LANG.EN:
@@ -3312,15 +3317,21 @@ module.exports = function(word, lang) {
   }
 
   return word;
-}
+};
+
 },{"../lang":11,"./az":12,"stemmer":8}],14:[function(require,module,exports){
+'use strict';
+
 var Az = require('./az');
 
-module.exports = function(text) {
+module.exports = function (text) {
   return Az.Tokens(text).done();
-}
+};
+
 },{"./az":12}],15:[function(require,module,exports){
-var Az = require('./az')
+'use strict';
+
+var Az = require('./az'),
     franc = require('franc-min'),
     LANG = require('../lang'),
     tokenization = require('./tokenization'),
@@ -3328,14 +3339,14 @@ var Az = require('./az')
     wordToEmoji = require('./wordToEmoji'),
     languageDetectOptions = { whitelist: Object.keys(LANG.FRANC), minLength: 2 };
 
-module.exports = function(text, settings) {
-  var word,
-      lang;
+module.exports = function (text, settings) {
+  var word, lang;
 
-  if (settings) { // текст
+  if (settings) {
+    // текст
     var tokens = tokenization(text);
 
-    for (let a = 0; a < tokens.length; a++) {
+    for (var a = 0; a < tokens.length; a++) {
       if (tokens[a].type === Az.Tokens.WORD) {
         word = tokens[a].toString();
         lang = LANG.FRANC[franc(word, languageDetectOptions)];
@@ -3344,7 +3355,7 @@ module.exports = function(text, settings) {
           word = normalizeWord(word, lang);
 
           if (word) {
-            let emoji = wordToEmoji(word, lang, false);
+            var emoji = wordToEmoji(word, lang, false);
 
             if (emoji) {
               if (settings.replaceWords) {
@@ -3359,7 +3370,8 @@ module.exports = function(text, settings) {
     }
 
     return tokens.join('');
-  } else { // одно слово
+  } else {
+    // одно слово
     word = text.trim();
 
     // действительно одно слово?
@@ -3370,7 +3382,7 @@ module.exports = function(text, settings) {
         word = normalizeWord(word, lang);
 
         if (word) {
-          let emojies = wordToEmoji(word, lang, true);
+          var emojies = wordToEmoji(word, lang, true);
 
           if (emojies) {
             if (typeof emojies === 'string') {
@@ -3383,14 +3395,18 @@ module.exports = function(text, settings) {
       }
     }
   }
-}
+};
+
 },{"../lang":11,"./az":12,"./normalizeWord":13,"./tokenization":14,"./wordToEmoji":16,"franc-min":6}],16:[function(require,module,exports){
+'use strict';
+
 var random = require('../utils/random'),
     LANG = require('../lang');
 
-module.exports = function(word, lang, variants) {
-  if (lang !== LANG.DE) { // в немецком все существительные пишутся с большой буквы
-    word = word.toLowerCase();    
+module.exports = function (word, lang, variants) {
+  if (lang !== LANG.DE) {
+    // в немецком все существительные пишутся с большой буквы
+    word = word.toLowerCase();
   }
 
   if (emojies[lang]['names'][word]) {
@@ -3398,7 +3414,7 @@ module.exports = function(word, lang, variants) {
   }
 
   if (emojies[lang]['keywords'][word]) {
-    let keywords = emojies[lang]['keywords'][word];
+    var keywords = emojies[lang]['keywords'][word];
 
     if (variants) {
       return keywords;
@@ -3406,12 +3422,18 @@ module.exports = function(word, lang, variants) {
       return keywords[random(keywords.length)];
     }
   }
-}
+};
+
 },{"../lang":11,"../utils/random":17}],17:[function(require,module,exports){
-module.exports = function(max) {
+"use strict";
+
+module.exports = function (max) {
   return Math.floor(Math.random() * max);
-}
+};
+
 },{}],18:[function(require,module,exports){
+'use strict';
+
 var Az = require('./translator/az'),
     translateText = require('./translator/translateText');
 
@@ -3419,12 +3441,12 @@ importScripts('emojies.js'); // получаем глобальную перем
 
 Az.Morph.init('../dicts/ru');
 
-onmessage = function(e) {
+onmessage = function onmessage(e) {
   if (e.data.settings) {
     postMessage({ text: translateText(e.data.text, e.data.settings) });
-  }
-  else {
+  } else {
     postMessage({ variants: translateText(e.data.text) });
   }
-}
+};
+
 },{"./translator/az":12,"./translator/translateText":15}]},{},[18]);
